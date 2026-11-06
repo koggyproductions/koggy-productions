@@ -1,0 +1,3349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Koggy Productions LLP</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html {
+      scroll-behavior: smooth;
+      scroll-snap-type: y mandatory;
+    }
+    body {
+      min-height: 100vh;
+      background: #060709 radial-gradient(circle at 50% 50%, #171d28 0%, #060709 85%);
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+      text-align: center;
+      user-select: none;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    #shake-container {
+      width: 100%;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Camera Juice Screen Shake */
+    @keyframes cameraJuice {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      15% { transform: translate(-10px, 6px) rotate(-1deg); }
+      30% { transform: translate(9px, -6px) rotate(0.8deg); }
+      45% { transform: translate(-6px, -4px) rotate(-0.5deg); }
+      60% { transform: translate(6px, 4px) rotate(0.4deg); }
+      75% { transform: translate(-3px, 2px) rotate(-0.2deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
+    }
+    .shake-active {
+      animation: cameraJuice 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+
+    /* Hot Shower Steam Canvas */
+    #bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Soft Denim Weave + Sharp Checker Grid Layer (Visible across both pages) */
+    .denim-grid-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 1;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+        repeating-linear-gradient(
+          45deg,
+          rgba(255, 255, 255, 0.03) 0px,
+          rgba(255, 255, 255, 0.03) 1px,
+          transparent 1px,
+          transparent 4px
+        ),
+        repeating-linear-gradient(
+          -45deg,
+          rgba(0, 0, 0, 0.35) 0px,
+          rgba(0, 0, 0, 0.35) 1px,
+          transparent 1px,
+          transparent 4px
+        );
+      background-size: 38px 38px, 38px 38px, 4px 4px, 4px 4px;
+    }
+
+    /* Two-Page Presentation Structure */
+    .page-section {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      scroll-snap-align: start;
+      position: relative;
+      z-index: 2;
+      padding: 75px 16px 45px; /* top padding clears the fixed top bar */
+      background: transparent;
+    }
+
+    header.studio-intro {
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .badge {
+      display: inline-block;
+      background: #000000;
+      color: #ffffff;
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      padding: 7px 22px;
+      border: 1.5px solid #ffffff;
+      margin-bottom: 16px;
+      cursor: pointer;
+      transition: transform 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.3), box-shadow 0.2s ease, border-color 0.2s ease;
+      will-change: transform;
+    }
+    .badge:hover {
+      box-shadow: 0 0 16px rgba(255, 255, 255, 0.85);
+      border-color: #ffffff;
+    }
+    h1 {
+      font-size: clamp(1.75rem, 4.3vw, 3.3rem);
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      display: inline-flex;
+      flex-wrap: nowrap; /* STRICTLY SINGLE LINE - NEVER WRAP */
+      white-space: nowrap;
+      justify-content: center;
+      align-items: center;
+      line-height: 1.1;
+      max-width: 96vw;
+    }
+    .char-span {
+      display: inline-block;
+      transition: transform 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.3), color 0.15s ease, text-shadow 0.18s ease;
+      cursor: pointer;
+    }
+    .char-span:hover {
+      transform: translateY(-10px) scale(1.22) rotate(-3deg);
+      color: #ffffff;
+      text-shadow: 0 0 16px rgba(255, 255, 255, 0.95), 0 0 30px rgba(255, 255, 255, 0.6);
+    }
+    .char-space {
+      display: inline-block;
+      width: 0.35em;
+    }
+    .duo-tag {
+      display: inline-block;
+      color: #ffffff;
+      font-size: 1.15rem;
+      border-left: 3px solid #ffffff;
+      padding-left: 16px;
+      margin-bottom: 28px;
+      text-align: left;
+      line-height: 1.45;
+    }
+
+    /* Enter Arcade Button & Prompt */
+    .enter-arcade-btn {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 12px 28px;
+      background: #000000;
+      color: #ffffff;
+      border: 2px solid #ffffff;
+      font-family: monospace;
+      font-weight: 900;
+      font-size: 1rem;
+      letter-spacing: 2px;
+      text-decoration: none;
+      text-transform: uppercase;
+      box-shadow: 4px 4px 0px #ffffff;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+    .enter-arcade-btn:hover {
+      background: #ffffff;
+      color: #000000;
+      box-shadow: 2px 2px 0px #888888;
+      transform: translate(2px, 2px);
+    }
+    .bounce-arrow {
+      margin-top: 14px;
+      font-size: 1.1rem;
+      color: #888888;
+      animation: floatArrow 1.5s ease-in-out infinite;
+    }
+    @keyframes floatArrow {
+      0%, 100% { transform: translateY(0); opacity: 0.4; }
+      50% { transform: translateY(6px); opacity: 1; }
+    }
+    .back-top-btn {
+      display: inline-block;
+      margin-top: 14px;
+      color: #666666;
+      font-family: monospace;
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .back-top-btn:hover {
+      color: #ffffff;
+    }
+
+    /* Main Arcade Game Frame (Wider screen presentation) */
+    #game-container {
+      position: relative;
+      width: 95vw;
+      max-width: 660px;
+      aspect-ratio: 540 / 360;
+      height: auto;
+      max-height: calc(100vh - 180px);
+      background: #000000;
+      border: 2px solid #ffffff;
+      box-shadow: 10px 10px 0px #ffffff;
+      overflow: hidden;
+      cursor: crosshair;
+    }
+    #gameCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+    }
+
+    .status {
+      margin-top: 16px;
+      font-size: 0.82rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #777777;
+    }
+
+    /* Fixed Navigation Bar (Pinned at top across all pages) */
+    .fixed-top-bar, footer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: auto;
+      width: 100%;
+      padding: 10px 24px;
+      background: rgba(6, 7, 9, 0.92);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      border-top: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.82rem;
+      color: #888888;
+      z-index: 1000;
+    }
+    .top-bar-inner, .footer-inner {
+      width: 100%;
+      max-width: 860px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .top-bar-links, .footer-links {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .social-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #000000;
+      color: #d1d5db;
+      border: 1px solid #444444;
+      border-radius: 20px;
+      padding: 3px 12px;
+      font-size: 0.78rem;
+      font-family: monospace;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      letter-spacing: 0.5px;
+    }
+    .social-pill:hover {
+      background: #ffffff;
+      color: #000000;
+      border-color: #ffffff;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    }
+    .social-pill svg {
+      width: 12px;
+      height: 12px;
+      fill: currentColor;
+    }
+    .duck-trigger-btn {
+      background: #000000;
+      color: #ffffff;
+      border: 1px solid #555555;
+      padding: 4px 10px;
+      font-family: monospace;
+      font-size: 0.8rem;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.15s;
+    }
+    .duck-trigger-btn:hover {
+      border-color: #ffffff;
+      background: #ffffff;
+      color: #000000;
+    }
+    .tc-link {
+      color: #ffffff;
+      text-decoration: none;
+      border-bottom: 1px solid #ffffff;
+      font-size: 0.85rem;
+    }
+    .tc-link:hover {
+      background: #ffffff;
+      color: #000000;
+    }
+
+    #duck-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="bg-canvas"></canvas>
+  <div class="denim-grid-overlay"></div>
+  <canvas id="duck-canvas"></canvas>
+
+  <!-- FIXED TOP BAR: Always pinned at the VERY TOP of the screen across all pages -->
+  <header class="fixed-top-bar">
+    <div class="top-bar-inner">
+      <span>© 2026 Koggy Productions LLP</span>
+      <div class="top-bar-links">
+        <a href="https://instagram.com/v11ddx" target="_blank" rel="noopener noreferrer" class="social-pill">
+          <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          @v11ddx
+        </a>
+        <a href="https://instagram.com/dhd.exe" target="_blank" rel="noopener noreferrer" class="social-pill">
+          <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          @dhd.exe
+        </a>
+        <button class="duck-trigger-btn" onclick="triggerDuckStampede()">🦆 Ducks</button>
+        <a href="terms.html" class="tc-link">Terms & Conditions</a>
+      </div>
+    </div>
+  </header>
+
+  <div id="shake-container">
+    <!-- PAGE 1: Studio Introduction (Centered Full Screen) -->
+    <section id="hero-section" class="page-section">
+      <header class="studio-intro">
+        <div class="badge" id="studio-badge">Indie Game Studio</div>
+        <h1 aria-label="KOGGY PRODUCTIONS LLP">
+          <span class="char-span">K</span><span class="char-span">O</span><span class="char-span">G</span><span class="char-span">G</span><span class="char-span">Y</span><span class="char-space">&nbsp;</span><span class="char-span">P</span><span class="char-span">R</span><span class="char-span">O</span><span class="char-span">D</span><span class="char-span">U</span><span class="char-span">C</span><span class="char-span">T</span><span class="char-span">I</span><span class="char-span">O</span><span class="char-span">N</span><span class="char-span">S</span><span class="char-space">&nbsp;</span><span class="char-span">L</span><span class="char-span">L</span><span class="char-span">P</span>
+        </h1>
+        <div class="duo-tag">
+          Brother and sister duo. Infinite curiosity. Independent game creators.
+        </div>
+        <div>
+          <a href="#arcade-section" class="enter-arcade-btn">▶ ENTER ARCADE ◀</a>
+        </div>
+        <div class="bounce-arrow">▼ SCROLL OR CLICK ▼</div>
+      </header>
+    </section>
+
+  <!-- PAGE 2: Koggy Arcade Block (Full Screen) -->
+  <section id="arcade-section" class="page-section">
+    <div id="game-container">
+      <canvas id="gameCanvas" width="540" height="360"></canvas>
+    </div>
+
+    <div class="status">
+      [ Status: In Development • koggyproductions.org ]
+    </div>
+
+    <a href="#hero-section" class="back-top-btn">▲ BACK TO TOP ▲</a>
+  </section>
+
+  </div>
+
+  <script>
+    /* ====================================================
+       1. STEAM EFFECT
+       ==================================================== */
+    const bgCanvas = document.getElementById("bg-canvas");
+    const bgCtx = bgCanvas.getContext("2d");
+    let steamPuffs = [];
+    const STEAM_COUNT = 45;
+
+    function resizeBg() {
+      bgCanvas.width = window.innerWidth;
+      bgCanvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeBg);
+    resizeBg();
+
+    for (let i = 0; i < STEAM_COUNT; i++) {
+      steamPuffs.push({
+        x: Math.random() * bgCanvas.width,
+        y: Math.random() * bgCanvas.height,
+        radius: 90 + Math.random() * 150,
+        vx: (Math.random() - 0.5) * 0.7,
+        vy: -1.2 - Math.random() * 1.6,
+        alpha: 0.05 + Math.random() * 0.07,
+        growRate: 0.2 + Math.random() * 0.3
+      });
+    }
+
+    function renderSteam() {
+      bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+      steamPuffs.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.radius += p.growRate;
+        if (p.y < -p.radius || p.radius > 280) {
+          p.y = bgCanvas.height + 40;
+          p.x = Math.random() * bgCanvas.width;
+          p.radius = 80 + Math.random() * 80;
+        }
+        const grad = bgCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius);
+        grad.addColorStop(0, `rgba(255, 255, 255, ${p.alpha * 1.2})`);
+        grad.addColorStop(0.5, `rgba(255, 255, 255, ${p.alpha * 0.6})`);
+        grad.addColorStop(1, "rgba(255, 255, 255, 0)");
+        bgCtx.fillStyle = grad;
+        bgCtx.beginPath();
+        bgCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        bgCtx.fill();
+      });
+      requestAnimationFrame(renderSteam);
+    }
+    renderSteam();
+
+    /* ====================================================
+       2. DUCKS + SCREEN JUICE
+       ==================================================== */
+    const duckCanvas = document.getElementById("duck-canvas");
+    const duckCtx = duckCanvas.getContext("2d");
+    let activeDucks = [];
+
+    function resizeDuckCanvas() {
+      duckCanvas.width = window.innerWidth;
+      duckCanvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeDuckCanvas);
+    resizeDuckCanvas();
+
+    function triggerCameraJuice() {
+      const el = document.getElementById("shake-container") || document.body;
+      el.classList.remove("shake-active");
+      void el.offsetWidth;
+      el.classList.add("shake-active");
+    }
+
+    function drawDuck(ctx, x, y, scale, rotation = 0) {
+      ctx.save();
+      ctx.translate(x, y);
+      if (rotation !== 0) ctx.rotate(rotation);
+      ctx.scale(scale, scale);
+      ctx.fillStyle = "#ffffff";
+      ctx.strokeStyle = "#000000";
+      ctx.lineWidth = 2.5;
+
+      ctx.beginPath();
+      ctx.ellipse(0, 4, 18, 12, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(-2, 4, 7, 0.2, Math.PI - 0.2);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(10, -8, 9, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = "#000000";
+      ctx.beginPath();
+      ctx.arc(12, -9, 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.moveTo(18, -9);
+      ctx.lineTo(26, -6);
+      ctx.lineTo(18, -3);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function triggerDuckStampede() {
+      triggerCameraJuice();
+      playQuackSound();
+      const isPage2 = (window.scrollY > window.innerHeight * 0.4);
+
+      if (isPage2) {
+        // Page 2: Ducks fall from top of screen down across the arcade!
+        for (let i = 0; i < 45; i++) {
+          activeDucks.push({
+            mode: "FALL",
+            x: 20 + Math.random() * (duckCanvas.width - 40),
+            baseX: 20 + Math.random() * (duckCanvas.width - 40),
+            y: -60 - Math.random() * 450,
+            vy: 6 + Math.random() * 6.5,
+            scale: 0.85 + Math.random() * 0.5,
+            waddleAngle: Math.random() * Math.PI * 2,
+            waddleSpeed: 0.14 + Math.random() * 0.12,
+            rotation: 0.25 + (Math.random() - 0.5) * 0.3
+          });
+        }
+      } else {
+        // Page 1: Horizontal stampede across screen!
+        for (let i = 0; i < 45; i++) {
+          activeDucks.push({
+            mode: "RUN",
+            x: -60 - Math.random() * 500,
+            y: 40 + Math.random() * (duckCanvas.height - 80),
+            baseY: 40 + Math.random() * (duckCanvas.height - 80),
+            vx: 5 + Math.random() * 6,
+            scale: 0.85 + Math.random() * 0.5,
+            waddleAngle: Math.random() * Math.PI * 2,
+            waddleSpeed: 0.16 + Math.random() * 0.12,
+            rotation: 0
+          });
+        }
+      }
+    }
+
+    function updateDucks() {
+      duckCtx.clearRect(0, 0, duckCanvas.width, duckCanvas.height);
+      for (let i = activeDucks.length - 1; i >= 0; i--) {
+        const d = activeDucks[i];
+        d.waddleAngle += d.waddleSpeed;
+
+        if (d.mode === "FALL") {
+          d.y += d.vy;
+          d.x = d.baseX + Math.sin(d.waddleAngle) * 12;
+          d.rotation = Math.sin(d.waddleAngle) * 0.2 + 0.35; // tilted down fluttering
+          drawDuck(duckCtx, d.x, d.y, d.scale, d.rotation);
+          if (d.y > duckCanvas.height + 80) activeDucks.splice(i, 1);
+        } else {
+          d.x += d.vx;
+          d.y = d.baseY + Math.sin(d.waddleAngle) * 8;
+          drawDuck(duckCtx, d.x, d.y, d.scale, 0);
+          if (d.x > duckCanvas.width + 60) activeDucks.splice(i, 1);
+        }
+      }
+      requestAnimationFrame(updateDucks);
+    }
+    updateDucks();
+
+
+    /* ====================================================
+       PROCEDURAL WEB AUDIO SYNTHESIZER (Generated SFX)
+       ==================================================== */
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+    let sfxEnabled = true;
+
+    function ensureAudio() {
+      if (!audioCtx) audioCtx = new AudioContext();
+      if (audioCtx.state === "suspended") audioCtx.resume();
+    }
+
+    // 1. Synthesized Quack Sound!
+    function playQuackSound() {
+      if (!sfxEnabled) return;
+      ensureAudio();
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sawtooth";
+        // Frequency sweep mimicking duck quack
+        osc.frequency.setValueAtTime(420, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(170, audioCtx.currentTime + 0.16);
+        gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.16);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.16);
+      } catch(e) {}
+    }
+
+    // 2. Giant Duck Boss Horn Siren
+    function playBossWarningSound() {
+      if (!sfxEnabled) return;
+      ensureAudio();
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "square";
+        osc.frequency.setValueAtTime(540, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(400, audioCtx.currentTime + 0.1);
+        osc.frequency.setValueAtTime(540, audioCtx.currentTime + 0.2);
+        gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.35);
+      } catch(e) {}
+    }
+
+    // 3. Arcade Crash / Explosion Sound
+    function playCrashSound() {
+      if (!sfxEnabled) return;
+      ensureAudio();
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sawtooth";
+        osc.frequency.setValueAtTime(140, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.25);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.25);
+      } catch(e) {}
+    }
+
+    // 4. Score Point Chime
+    function playPointSound() {
+      if (!sfxEnabled) return;
+      ensureAudio();
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(660, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1100, audioCtx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.12);
+      } catch(e) {}
+    }
+
+    // 5. Baseball Bat Hit / Punch Sound
+    function playHitSound() {
+      if (!sfxEnabled) return;
+      ensureAudio();
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(280, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.14);
+        gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.14);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.14);
+      } catch(e) {}
+    }
+
+    // 6. Player Jump Whoosh Sound
+    function playJumpSound() {
+      if (!sfxEnabled) return;
+      ensureAudio();
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(450, audioCtx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.12);
+      } catch(e) {}
+    }
+
+    // 7. Obstacle Dissolve / Zap Sound
+    function playDissolveSound() {
+      if (!sfxEnabled) return;
+      ensureAudio();
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(220, audioCtx.currentTime + 0.22);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.22);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.22);
+      } catch(e) {}
+    }
+
+    // 8. Monster Fireball Shoot Sound
+    function playFireballSound() {
+      if (!sfxEnabled) return;
+      ensureAudio();
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(320, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.18);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.18);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.18);
+      } catch(e) {}
+    }
+
+    // 9. Sonic Dash Swoosh
+    function playDashSound() {
+      if (!sfxEnabled) return;
+      ensureAudio();
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sawtooth";
+        osc.frequency.setValueAtTime(500, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.14);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.14);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.14);
+      } catch(e) {}
+    }
+
+    // 10. Menu Select Blip
+    function playMenuClickSound() {
+      if (!sfxEnabled) return;
+      ensureAudio();
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(520, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(780, audioCtx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.08);
+      } catch(e) {}
+    }
+
+    // 11. Victory Fanfare (3 notes)
+    function playVictoryFanfare() {
+      if (!sfxEnabled) return;
+      ensureAudio();
+      [523.25, 659.25, 783.99].forEach((freq, idx) => {
+        setTimeout(() => {
+          try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.25);
+          } catch(e) {}
+        }, idx * 120);
+      });
+    }
+
+    // 12. Game Over Sad Descending Tone
+    function playGameOverSound() {
+      if (!sfxEnabled) return;
+      ensureAudio();
+      [349.23, 261.63].forEach((freq, idx) => {
+        setTimeout(() => {
+          try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = "sawtooth";
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.22, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+          } catch(e) {}
+        }, idx * 160);
+      });
+    }
+
+    // Grid Step Blip
+    function playStepSound() {
+      if (!sfxEnabled) return;
+      ensureAudio();
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(360, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(540, audioCtx.currentTime + 0.05);
+        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.05);
+      } catch(e) {}
+    }
+
+    // Lovers Reunited Chime Arpeggio
+    function playReunionChime() {
+      if (!sfxEnabled) return;
+      ensureAudio();
+      [523.25, 659.25, 783.99, 1046.5].forEach((freq, idx) => {
+        setTimeout(() => {
+          try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.24, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+          } catch(e) {}
+        }, idx * 90);
+      });
+    }
+
+    // 13. Aircraft Jet Engine Sound Synthesizer (Continuous Thruster Loop)
+    let engineOsc = null;
+    let engineSubOsc = null;
+    let engineGain = null;
+    let engineFilter = null;
+    let engineRunning = false;
+
+    function startAircraftEngine() {
+      if (!sfxEnabled || engineRunning) return;
+      ensureAudio();
+      try {
+        engineGain = audioCtx.createGain();
+        engineGain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+        engineGain.gain.exponentialRampToValueAtTime(0.065, audioCtx.currentTime + 0.25);
+
+        // Lowpass filter creates an authentic deep jet turbine rumble
+        engineFilter = audioCtx.createBiquadFilter();
+        engineFilter.type = "lowpass";
+        engineFilter.frequency.setValueAtTime(230, audioCtx.currentTime);
+
+        // Primary jet turbine hum (sawtooth through lowpass gives that classic jet drone)
+        engineOsc = audioCtx.createOscillator();
+        engineOsc.type = "sawtooth";
+        engineOsc.frequency.setValueAtTime(78, audioCtx.currentTime);
+
+        // Secondary sub-harmonic for twin-jet depth (@v11ddx & @dhd.exe formation)
+        engineSubOsc = audioCtx.createOscillator();
+        engineSubOsc.type = "triangle";
+        engineSubOsc.frequency.setValueAtTime(118, audioCtx.currentTime);
+
+        engineOsc.connect(engineFilter);
+        engineSubOsc.connect(engineFilter);
+        engineFilter.connect(engineGain);
+        engineGain.connect(audioCtx.destination);
+
+        engineOsc.start();
+        engineSubOsc.start();
+        engineRunning = true;
+      } catch(e) {}
+    }
+
+    function updateAircraftEngine(roll = 0) {
+      if (!engineRunning || !engineOsc || !sfxEnabled || !audioCtx) return;
+      try {
+        // Thrusters spool up slightly when banking into turns!
+        const pitchBend = Math.abs(roll) * 32;
+        engineOsc.frequency.setTargetAtTime(78 + pitchBend, audioCtx.currentTime, 0.05);
+        if (engineSubOsc) {
+          engineSubOsc.frequency.setTargetAtTime(118 + pitchBend * 1.2, audioCtx.currentTime, 0.05);
+        }
+      } catch(e) {}
+    }
+
+    function stopAircraftEngine() {
+      if (!engineRunning) return;
+      try {
+        if (engineGain && audioCtx) {
+          engineGain.gain.setValueAtTime(engineGain.gain.value, audioCtx.currentTime);
+          engineGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1);
+        }
+        const o1 = engineOsc;
+        const o2 = engineSubOsc;
+        engineOsc = null;
+        engineSubOsc = null;
+        engineRunning = false;
+        setTimeout(() => {
+          try { if (o1) { o1.stop(); o1.disconnect(); } } catch(e){}
+          try { if (o2) { o2.stop(); o2.disconnect(); } } catch(e){}
+        }, 120);
+      } catch(e) {
+        engineRunning = false;
+      }
+    }
+
+    /* ----------------------------------------------------
+       12. PAGE SCROLL ZOOSH SFX (1-Sec Paced Soft Swipe)
+       ---------------------------------------------------- */
+    let lastScrollZooshTime = 0;
+    let lastScrollY = window.scrollY;
+    const SCROLL_ZOOSH_COOLDOWN = 1000; // 1-second cooldown per user request
+
+    function playScrollZoosh(isDown = true, duration = 0.16) {
+      if (!sfxEnabled) return;
+      ensureAudio();
+      if (!audioCtx) return;
+      try {
+        const now = audioCtx.currentTime;
+        
+        // Soft air whoosh oscillator (smooth triangle through warm lowpass filter)
+        const osc = audioCtx.createOscillator();
+        const filter = audioCtx.createBiquadFilter();
+        const gain = audioCtx.createGain();
+
+        osc.type = "triangle";
+        filter.type = "lowpass";
+
+        if (isDown) {
+          // Downward soft air zoosh
+          osc.frequency.setValueAtTime(300, now);
+          osc.frequency.exponentialRampToValueAtTime(105, now + duration);
+          filter.frequency.setValueAtTime(420, now);
+          filter.frequency.exponentialRampToValueAtTime(150, now + duration);
+        } else {
+          // Upward soft air zoosh
+          osc.frequency.setValueAtTime(120, now);
+          osc.frequency.exponentialRampToValueAtTime(300, now + duration);
+          filter.frequency.setValueAtTime(160, now);
+          filter.frequency.exponentialRampToValueAtTime(420, now + duration);
+        }
+
+        // Very small, subtle soft volume
+        gain.gain.setValueAtTime(0.035, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start(now);
+        osc.stop(now + duration);
+      } catch(e) {}
+    }
+
+    // 13. Crisp Universal Hover SFX
+    function playHoverSound(freq = 520) {
+      if (!sfxEnabled) return;
+      ensureAudio();
+      if (!audioCtx) return;
+      try {
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        const f = freq > 0 ? freq : 520;
+        osc.frequency.setValueAtTime(f, now);
+        osc.frequency.exponentialRampToValueAtTime(f * 1.22, now + 0.035);
+        gain.gain.setValueAtTime(0.045, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.035);
+      } catch(e) {}
+    }
+
+    // Interactive audio wake-up on user gesture
+    ["click", "keydown", "wheel", "touchstart", "pointerdown"].forEach((evt) => {
+      window.addEventListener(evt, () => ensureAudio(), { passive: true });
+    });
+
+    // 1-Second Paced soft zoosh SFX on scrolling or wheeling the page
+    window.addEventListener("scroll", () => {
+      const now = performance.now();
+      const curY = window.scrollY;
+      const diff = curY - lastScrollY;
+      if (Math.abs(diff) > 8 && (now - lastScrollZooshTime > SCROLL_ZOOSH_COOLDOWN)) {
+        playScrollZoosh(diff > 0, 0.16);
+        lastScrollZooshTime = now;
+        lastScrollY = curY;
+      }
+    }, { passive: true });
+
+    window.addEventListener("wheel", (e) => {
+      const now = performance.now();
+      if (now - lastScrollZooshTime > SCROLL_ZOOSH_COOLDOWN) {
+        playScrollZoosh(e.deltaY >= 0, 0.16);
+        lastScrollZooshTime = now;
+      }
+    }, { passive: true });
+
+    // Buttons zoosh on page jump click
+    document.querySelectorAll(".enter-arcade-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        playScrollZoosh(true, 0.18);
+      });
+    });
+    document.querySelectorAll(".back-top-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        playScrollZoosh(false, 0.18);
+      });
+    });
+
+    // Every interactive HTML button triggers a tactile hover SFX!
+    document.querySelectorAll(".enter-arcade-btn, .back-top-btn, .social-pill, .duck-trigger-btn, .tc-link").forEach((btn) => {
+      btn.addEventListener("mouseenter", () => {
+        playHoverSound(520);
+      });
+    });
+
+    // KOGGY PRODUCTIONS LLP Letters play cheerful musical notes on hover!
+    const TITLE_SCALE = [440, 494, 554, 659, 740, 830, 880, 988, 1108, 1240, 1318];
+    document.querySelectorAll(".char-span").forEach((span, idx) => {
+      span.addEventListener("mouseenter", () => {
+        const note = TITLE_SCALE[idx % TITLE_SCALE.length];
+        playHoverSound(note);
+      });
+    });
+
+    // 14. Indie Game Studio Badge Random Tilt + Wobble SFX on Every Hover
+    function playBadgeWobbleSound() {
+      if (!sfxEnabled) return;
+      ensureAudio();
+      if (!audioCtx) return;
+      try {
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        // Bouncy two-tone wobble
+        osc.frequency.setValueAtTime(380, now);
+        osc.frequency.exponentialRampToValueAtTime(620, now + 0.045);
+        osc.frequency.exponentialRampToValueAtTime(480, now + 0.09);
+
+        gain.gain.setValueAtTime(0.065, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.09);
+      } catch(e) {}
+    }
+
+    const studioBadge = document.getElementById("studio-badge");
+    if (studioBadge) {
+      studioBadge.addEventListener("mouseenter", () => {
+        const sign = Math.random() > 0.5 ? 1 : -1;
+        const angle = sign * (6 + Math.random() * 8); // random angle between ±6deg and ±14deg
+        const scale = 1.08 + Math.random() * 0.04;
+        studioBadge.style.transform = `rotate(${angle.toFixed(1)}deg) scale(${scale.toFixed(2)})`;
+        playBadgeWobbleSound();
+      });
+      studioBadge.addEventListener("mouseleave", () => {
+        studioBadge.style.transform = "rotate(0deg) scale(1)";
+      });
+    }
+
+    /* ====================================================
+       3. 3-IN-1 ARCADE SYSTEM (Global Any-Key Retry & Tuned Gameplay)
+       ==================================================== */
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const WIDTH = 540;
+    const HEIGHT = 360;
+
+    let activeGame = "MENU"; // "MENU", "LOVERS", "AIRCRAFT", "MONSTER"
+    let gameDifficulty = "medium"; // "easy", "medium", "hard"
+    let keys = {};
+    let mousePos = { x: WIDTH / 2, y: HEIGHT / 2 };
+
+    // GLOBAL ANY-KEY PRESS LISTENER (Restarts ANY game on gameover/victory)
+    window.addEventListener("keydown", (e) => {
+      keys[e.key] = true;
+      if (e.key === "Escape") {
+        activeGame = "MENU";
+        stopAircraftEngine();
+        return;
+      }
+
+      // Game 1: Lovers Meet Movement & Replay
+      if (activeGame === "LOVERS") {
+        if (loversState === "GAMEOVER") {
+          initLoversLevel(loversLevel);
+          return;
+        }
+        if (loversState === "REUNITED") {
+          nextLoversLevel();
+          return;
+        }
+        if (loversState === "PLAYING") {
+          if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") { moveLoversPlayer(0, -1); e.preventDefault(); }
+          else if (e.key === "ArrowDown" || e.key === "s" || e.key === "S") { moveLoversPlayer(0, 1); e.preventDefault(); }
+          else if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") { moveLoversPlayer(-1, 0); e.preventDefault(); }
+          else if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") { moveLoversPlayer(1, 0); e.preventDefault(); }
+        }
+      }
+
+      // Game 2 Replay on ANY KEY or Shoot on SPACE
+      if (activeGame === "AIRCRAFT") {
+        if (airState === "GAMEOVER") {
+          initAircraft();
+          startAircraftEngine();
+          return;
+        } else if (airState === "PLAYING" && (e.code === "Space" || e.key === "Enter")) {
+          fireAircraftWeapons();
+        }
+      }
+
+      // Game 3 Replay on ANY KEY (when dead or rematch ready)
+      if (activeGame === "MONSTER") {
+        if (monsterState === "GAMEOVER") {
+          initMonster();
+          return;
+        }
+        if (monsterState === "VICTORY" && rematchReady) {
+          initMonster();
+          return;
+        }
+
+        // Jump keys: Space, Up Arrow, or W
+        if (e.code === "Space" || e.key === "ArrowUp" || e.key === "w" || e.key === "W") {
+          monsterPlayerJump();
+        }
+        // Dash key: Shift
+        if (e.key === "Shift") {
+          monsterPlayerDash();
+        }
+      }
+    });
+
+    window.addEventListener("keyup", (e) => { keys[e.key] = false; });
+
+    function getCoords(e) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: (e.clientX - rect.left) * (WIDTH / rect.width),
+        y: (e.clientY - rect.top) * (HEIGHT / rect.height)
+      };
+    }
+
+    canvas.addEventListener("mousemove", (e) => {
+      mousePos = getCoords(e);
+      if (activeGame === "AIRCRAFT") updateAircraftMouse(mousePos.x);
+      if (activeGame === "MONSTER" && monsterState === "PLAYING") {
+        // Aim batter with mouse
+        batter.x = Math.max(30, Math.min(WIDTH - 30, mousePos.x));
+      }
+    });
+
+    // GLOBAL CLICK LISTENER (Click also restarts ANY game on gameover)
+    canvas.addEventListener("click", (e) => {
+      const pos = getCoords(e);
+      ensureAudio();
+
+      // Sound Toggle Button (top-left)
+      if (pos.x >= 10 && pos.x <= 95 && pos.y >= 6 && pos.y <= 28) {
+        sfxEnabled = !sfxEnabled;
+        if (sfxEnabled) {
+          playPointSound();
+          if (activeGame === "AIRCRAFT" && airState === "PLAYING") startAircraftEngine();
+        } else {
+          stopAircraftEngine();
+        }
+        return;
+      }
+
+      if (activeGame === "MENU") {
+        // Difficulty Tabs (Y: 52 to 74)
+        if (pos.y >= 52 && pos.y <= 74) {
+          if (pos.x >= 150 && pos.x <= 220) { gameDifficulty = "easy"; playMenuClickSound(); }
+          if (pos.x >= 235 && pos.x <= 305) { gameDifficulty = "medium"; playMenuClickSound(); }
+          if (pos.x >= 320 && pos.x <= 390) { gameDifficulty = "hard"; playMenuClickSound(); }
+        }
+
+        // 1x3 Cards
+        if (pos.x >= 18 && pos.x <= 178 && pos.y >= 88 && pos.y <= 295) {
+          playMenuClickSound(); initLovers(); activeGame = "LOVERS";
+        } else if (pos.x >= 190 && pos.x <= 350 && pos.y >= 88 && pos.y <= 295) {
+          playMenuClickSound(); initAircraft(); activeGame = "AIRCRAFT";
+          startAircraftEngine();
+        } else if (pos.x >= 362 && pos.x <= 522 && pos.y >= 88 && pos.y <= 295) {
+          playMenuClickSound(); initMonster(); activeGame = "MONSTER";
+        }
+      } else {
+        // [◀ MENU] button in top-right
+        if (pos.x >= WIDTH - 75 && pos.x <= WIDTH - 8 && pos.y >= 6 && pos.y <= 28) {
+          activeGame = "MENU";
+          stopAircraftEngine();
+          return;
+        }
+
+        // Click to replay or next level in Game 1
+        if (activeGame === "LOVERS") {
+          if (loversState === "GAMEOVER") {
+            initLoversLevel(loversLevel); return;
+          }
+          if (loversState === "REUNITED") {
+            nextLoversLevel(); return;
+          }
+        }
+        // Click in Game 2 (Shoot weapons or replay)
+        if (activeGame === "AIRCRAFT") {
+          if (airState === "PLAYING") fireAircraftWeapons();
+          else if (airState === "GAMEOVER") { initAircraft(); startAircraftEngine(); return; }
+        }
+        // Monster Game Click
+        if (activeGame === "MONSTER") {
+          if (monsterState === "PLAYING") {
+            swingBaseballBat();
+          } else if (monsterState === "GAMEOVER") {
+            initMonster();
+          } else if (monsterState === "VICTORY" && rematchReady) {
+            initMonster();
+          }
+        }
+      }
+    });
+
+
+    /* ----------------------------------------------------
+       GAME 1: KOGGY LOVERS MEET (Grid Puzzle, Square Snake Obstacles, Throbbing Pink Reunion)
+       ---------------------------------------------------- */
+    const LOV_COLS = 16;
+    const LOV_ROWS = 10;
+    const LOV_CELL = 30;
+    const LOV_X = 30;
+    const LOV_Y = 42;
+
+    function drawHalfHeartSide(ctx, size) {
+      const topY = -size * 0.25;
+      const botY = size * 0.65;
+      ctx.beginPath();
+      ctx.moveTo(0, topY);
+      ctx.bezierCurveTo(size * 0.35, -size * 0.85, size * 0.95, -size * 0.25, size * 0.75, size * 0.12);
+      ctx.bezierCurveTo(size * 0.55, size * 0.45, size * 0.2, size * 0.55, 0, botY);
+      ctx.lineTo(0, topY);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function drawPixelHeart(ctx, cx, cy, size, side = "BOTH", color = "#ff4081") {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.fillStyle = color;
+      if (side === "RIGHT" || side === "BOTH") {
+        drawHalfHeartSide(ctx, size);
+      }
+      if (side === "LEFT" || side === "BOTH") {
+        ctx.save();
+        ctx.scale(-1, 1);
+        drawHalfHeartSide(ctx, size);
+        ctx.restore();
+      }
+      ctx.restore();
+    }
+
+    let loversLevel = 1;
+    let loversState = "PLAYING"; // "PLAYING", "REUNITED", "GAMEOVER"
+    let loversSteps = 0;
+    let loversPlayer = { col: 1, row: 5, visualX: 0, visualY: 0 };
+    let loversPartner = { col: 14, row: 5 };
+    let loversWalls = []; // array of {col, row}
+    let loversSnakes = []; // array of snake objects
+    let loversSparkles = [];
+    let loversAnimTimer = 0;
+    let loversSnakeTimer = 0;
+
+    function initLovers() {
+      loversLevel = 1;
+      initLoversLevel(loversLevel);
+    }
+
+    function initLoversLevel(lvl) {
+      loversLevel = lvl;
+      loversState = "PLAYING";
+      loversSteps = 0;
+      loversSparkles = [];
+      loversAnimTimer = 0;
+      loversSnakeTimer = 0;
+      loversWalls = [];
+      loversSnakes = [];
+
+      // Level Designs
+      if (lvl === 1) {
+        // Level 1: Introduction - Vertical Patrol
+        loversPlayer.col = 1;
+        loversPlayer.row = 5;
+        loversPartner.col = 14;
+        loversPartner.row = 5;
+        loversSnakes.push({
+          segments: [{col: 7, row: 2}, {col: 7, row: 3}, {col: 7, row: 4}, {col: 7, row: 5}],
+          dc: 0, dr: -1,
+          type: "Y", minR: 1, maxR: 8
+        });
+      } else if (lvl === 2) {
+        // Level 2: Divided Corridor with Barrier Walls
+        loversPlayer.col = 1;
+        loversPlayer.row = 2;
+        loversPartner.col = 14;
+        loversPartner.row = 7;
+        for (let c = 0; c <= 5; c++) loversWalls.push({col: c, row: 4});
+        for (let c = 9; c <= 15; c++) loversWalls.push({col: c, row: 4});
+        loversSnakes.push({
+          segments: [{col: 5, row: 5}, {col: 4, row: 5}, {col: 3, row: 5}, {col: 2, row: 5}, {col: 1, row: 5}],
+          dc: 1, dr: 0,
+          type: "X", minC: 1, maxC: 14
+        });
+      } else if (lvl === 3) {
+        // Level 3: Twin Patrols
+        loversPlayer.col = 1;
+        loversPlayer.row = 8;
+        loversPartner.col = 14;
+        loversPartner.row = 1;
+        loversWalls.push({col: 5, row: 4}, {col: 5, row: 5}, {col: 10, row: 4}, {col: 10, row: 5});
+        loversSnakes.push({
+          segments: [{col: 3, row: 3}, {col: 2, row: 3}, {col: 1, row: 3}, {col: 0, row: 3}],
+          dc: 1, dr: 0,
+          type: "X", minC: 1, maxC: 14
+        });
+        loversSnakes.push({
+          segments: [{col: 12, row: 6}, {col: 13, row: 6}, {col: 14, row: 6}, {col: 15, row: 6}],
+          dc: -1, dr: 0,
+          type: "X", minC: 1, maxC: 14
+        });
+      } else if (lvl === 4) {
+        // Level 4: The Courtyard Haven
+        loversPlayer.col = 1;
+        loversPlayer.row = 1;
+        loversPartner.col = 8;
+        loversPartner.row = 4;
+        for (let c = 6; c <= 10; c++) {
+          loversWalls.push({col: c, row: 3});
+          loversWalls.push({col: c, row: 5});
+        }
+        loversWalls.push({col: 6, row: 4}); // Gate is open on right at (10, 4)
+        loversSnakes.push({
+          segments: [
+            {col: 13, row: 4}, {col: 13, row: 3}, {col: 13, row: 2}, {col: 13, row: 1},
+            {col: 12, row: 1}, {col: 11, row: 1}, {col: 10, row: 1}
+          ],
+          waypoints: [
+            {col: 13, row: 8}, {col: 2, row: 8}, {col: 2, row: 1}, {col: 13, row: 1}
+          ],
+          wpIndex: 0,
+          dc: 0, dr: 1,
+          type: "WAYPOINTS"
+        });
+      } else if (lvl === 5) {
+        // Level 5: Master Gauntlet
+        loversPlayer.col = 1;
+        loversPlayer.row = 5;
+        loversPartner.col = 14;
+        loversPartner.row = 5;
+        for (let r = 2; r <= 7; r++) {
+          if (r !== 5) loversWalls.push({col: 5, row: r}, {col: 10, row: r});
+        }
+        loversSnakes.push({
+          segments: [{col: 7, row: 2}, {col: 7, row: 3}, {col: 7, row: 4}, {col: 7, row: 5}],
+          dc: 0, dr: 1,
+          type: "Y", minR: 1, maxR: 8
+        });
+        loversSnakes.push({
+          segments: [{col: 8, row: 7}, {col: 8, row: 6}, {col: 8, row: 5}, {col: 8, row: 4}],
+          dc: 0, dr: -1,
+          type: "Y", minR: 1, maxR: 8
+        });
+      } else if (lvl === 6) {
+        // Level 6: Zig-Zag Alley
+        loversPlayer.col = 1;
+        loversPlayer.row = 1;
+        loversPartner.col = 14;
+        loversPartner.row = 8;
+        // Upper wall with gap on right
+        for (let c = 0; c <= 11; c++) loversWalls.push({col: c, row: 3});
+        // Lower wall with gap on left
+        for (let c = 4; c <= 15; c++) loversWalls.push({col: c, row: 6});
+        // Snakes patrolling corridors
+        loversSnakes.push({
+          segments: [{col: 5, row: 1}, {col: 4, row: 1}, {col: 3, row: 1}, {col: 2, row: 1}],
+          dc: 1, dr: 0,
+          type: "X", minC: 1, maxC: 14
+        });
+        loversSnakes.push({
+          segments: [{col: 10, row: 4}, {col: 9, row: 4}, {col: 8, row: 4}, {col: 7, row: 4}],
+          dc: -1, dr: 0,
+          type: "X", minC: 1, maxC: 14
+        });
+        loversSnakes.push({
+          segments: [{col: 6, row: 8}, {col: 5, row: 8}, {col: 4, row: 8}, {col: 3, row: 8}],
+          dc: 1, dr: 0,
+          type: "X", minC: 1, maxC: 13
+        });
+      } else if (lvl === 7) {
+        // Level 7: Four Quadrants
+        loversPlayer.col = 1;
+        loversPlayer.row = 8;
+        loversPartner.col = 8;
+        loversPartner.row = 4;
+        // Cross divider walls
+        for (let c = 2; c <= 5; c++) loversWalls.push({col: c, row: 4});
+        for (let c = 10; c <= 13; c++) loversWalls.push({col: c, row: 4});
+        for (let r = 0; r <= 2; r++) loversWalls.push({col: 8, row: r});
+        for (let r = 6; r <= 9; r++) loversWalls.push({col: 8, row: r});
+        // Guard snakes
+        loversSnakes.push({
+          segments: [{col: 12, row: 1}, {col: 12, row: 2}, {col: 12, row: 3}, {col: 12, row: 4}],
+          dc: 0, dr: 1,
+          type: "Y", minR: 1, maxR: 7
+        });
+        loversSnakes.push({
+          segments: [{col: 4, row: 7}, {col: 4, row: 6}, {col: 4, row: 5}, {col: 4, row: 4}],
+          dc: 0, dr: -1,
+          type: "Y", minR: 2, maxR: 8
+        });
+      } else if (lvl === 8) {
+        // Level 8: The Orbital Rings (Dual Orbiting Loopers)
+        loversPlayer.col = 1;
+        loversPlayer.row = 1;
+        loversPartner.col = 14;
+        loversPartner.row = 8;
+        // Center obstacle box
+        for (let c = 6; c <= 9; c++) {
+          loversWalls.push({col: c, row: 4}, {col: c, row: 5});
+        }
+        // Outer loop snake (clockwise)
+        loversSnakes.push({
+          segments: [
+            {col: 3, row: 2}, {col: 2, row: 2}, {col: 2, row: 3}, {col: 2, row: 4}, {col: 2, row: 5}
+          ],
+          waypoints: [
+            {col: 13, row: 2}, {col: 13, row: 7}, {col: 2, row: 7}, {col: 2, row: 2}
+          ],
+          wpIndex: 0,
+          dc: 1, dr: 0,
+          type: "WAYPOINTS"
+        });
+        // Inner loop snake (counter-clockwise)
+        loversSnakes.push({
+          segments: [
+            {col: 10, row: 7}, {col: 11, row: 7}, {col: 11, row: 6}, {col: 11, row: 5}
+          ],
+          waypoints: [
+            {col: 4, row: 7}, {col: 4, row: 2}, {col: 11, row: 2}, {col: 11, row: 7}
+          ],
+          wpIndex: 0,
+          dc: -1, dr: 0,
+          type: "WAYPOINTS"
+        });
+      } else if (lvl === 9) {
+        // Level 9: Crossfire Gauntlet (3 intersecting snakes)
+        loversPlayer.col = 1;
+        loversPlayer.row = 5;
+        loversPartner.col = 14;
+        loversPartner.row = 5;
+        loversWalls.push({col: 4, row: 3}, {col: 4, row: 7}, {col: 11, row: 3}, {col: 11, row: 7});
+        // 2 Vertical gatekeepers
+        loversSnakes.push({
+          segments: [{col: 4, row: 2}, {col: 4, row: 3}, {col: 4, row: 4}, {col: 4, row: 5}],
+          dc: 0, dr: 1,
+          type: "Y", minR: 1, maxR: 8
+        });
+        loversSnakes.push({
+          segments: [{col: 11, row: 7}, {col: 11, row: 6}, {col: 11, row: 5}, {col: 11, row: 4}],
+          dc: 0, dr: -1,
+          type: "Y", minR: 1, maxR: 8
+        });
+        // 1 Horizontal center patrol
+        loversSnakes.push({
+          segments: [{col: 6, row: 5}, {col: 7, row: 5}, {col: 8, row: 5}, {col: 9, row: 5}],
+          dc: 1, dr: 0,
+          type: "X", minC: 5, maxC: 10
+        });
+      } else if (lvl === 10) {
+        // Level 10: The Grand Labyrinth
+        loversPlayer.col = 1;
+        loversPlayer.row = 1;
+        loversPartner.col = 14;
+        loversPartner.row = 8;
+        // Maze walls
+        for (let r = 1; r <= 8; r += 2) {
+          if (r % 4 === 1) {
+            for (let c = 2; c <= 12; c++) loversWalls.push({col: c, row: r});
+          } else {
+            for (let c = 4; c <= 14; c++) loversWalls.push({col: c, row: r});
+          }
+        }
+        loversSnakes.push({
+          segments: [{col: 2, row: 2}, {col: 1, row: 2}, {col: 0, row: 2}],
+          dc: 1, dr: 0,
+          type: "X", minC: 0, maxC: 15
+        });
+        loversSnakes.push({
+          segments: [{col: 13, row: 6}, {col: 14, row: 6}, {col: 15, row: 6}],
+          dc: -1, dr: 0,
+          type: "X", minC: 0, maxC: 15
+        });
+      } else {
+        // Level 11+: Infinite Procedural Generator (Every level is uniquely generated!)
+        const seed = lvl * 7919;
+        function rnd(offset) {
+          const s = Math.sin(seed + offset * 133.7) * 43758.5453;
+          return s - Math.floor(s);
+        }
+
+        // Dynamic player and partner placement
+        const pSide = rnd(1) > 0.5;
+        loversPlayer.col = pSide ? 1 : 14;
+        loversPlayer.row = 1 + Math.floor(rnd(2) * 8);
+        loversPartner.col = pSide ? 14 : 1;
+        loversPartner.row = 1 + Math.floor(rnd(3) * 8);
+
+        // Procedural pillar walls (ensuring player and partner are clear)
+        const numPillars = 4 + (lvl % 5);
+        for (let p = 0; p < numPillars; p++) {
+          const wc = 3 + Math.floor(rnd(10 + p) * 10);
+          const wr = 1 + Math.floor(rnd(20 + p) * 8);
+          if (Math.abs(wc - loversPlayer.col) > 1 || Math.abs(wr - loversPlayer.row) > 1) {
+            if (Math.abs(wc - loversPartner.col) > 1 || Math.abs(wr - loversPartner.row) > 1) {
+              loversWalls.push({col: wc, row: wr});
+            }
+          }
+        }
+
+        // Procedural snakes (2 to 4 snakes depending on level)
+        const snakeCount = Math.min(4, 2 + Math.floor((lvl - 10) / 4));
+        for (let s = 0; s < snakeCount; s++) {
+          const isHoriz = rnd(30 + s) > 0.5;
+          const segLen = 4 + (s % 3);
+          let validSnake = null;
+
+          // Find candidate placement with strict safe distance from player & partner
+          for (let attempt = 0; attempt < 30; attempt++) {
+            const segs = [];
+            let safe = true;
+
+            if (isHoriz) {
+              const row = 1 + Math.floor(rnd(40 + s + attempt * 7) * 8);
+              const minC = 2;
+              const maxC = 13;
+              const startC = minC + Math.floor(rnd(50 + s + attempt * 7) * Math.max(1, (maxC - minC - segLen)));
+              for (let i = 0; i < segLen; i++) {
+                const sc = startC + i;
+                segs.push({col: sc, row: row});
+                // Minimum safe distance: 3 cells from player, 2 cells from partner
+                if (Math.abs(sc - loversPlayer.col) + Math.abs(row - loversPlayer.row) < 3) safe = false;
+                if (Math.abs(sc - loversPartner.col) + Math.abs(row - loversPartner.row) < 2) safe = false;
+              }
+              if (safe) {
+                validSnake = {
+                  segments: segs,
+                  dc: rnd(60 + s) > 0.5 ? 1 : -1, dr: 0,
+                  type: "X", minC: minC, maxC: maxC
+                };
+                break;
+              }
+            } else {
+              const col = 2 + Math.floor(rnd(70 + s + attempt * 7) * 12);
+              const minR = 1;
+              const maxR = 8;
+              const startR = minR + Math.floor(rnd(80 + s + attempt * 7) * Math.max(1, (maxR - minR - segLen)));
+              for (let i = 0; i < segLen; i++) {
+                const sr = startR + i;
+                segs.push({col: col, row: sr});
+                if (Math.abs(col - loversPlayer.col) + Math.abs(sr - loversPlayer.row) < 3) safe = false;
+                if (Math.abs(col - loversPartner.col) + Math.abs(sr - loversPartner.row) < 2) safe = false;
+              }
+              if (safe) {
+                validSnake = {
+                  segments: segs,
+                  dc: 0, dr: rnd(90 + s) > 0.5 ? 1 : -1,
+                  type: "Y", minR: minR, maxR: maxR
+                };
+                break;
+              }
+            }
+          }
+
+          if (validSnake) {
+            loversSnakes.push(validSnake);
+          }
+        }
+      }
+
+      // ABSOLUTE SPAWN SAFETY SHIELD:
+      // Remove any snake segment within a 2-cell radius of the player at spawn
+      loversSnakes.forEach(s => {
+        s.segments = s.segments.filter(seg => {
+          const distToPlayer = Math.abs(seg.col - loversPlayer.col) + Math.abs(seg.row - loversPlayer.row);
+          return distToPlayer >= 2;
+        });
+      });
+      // Filter out empty snakes if any
+      loversSnakes = loversSnakes.filter(s => s.segments.length > 0);
+
+      loversPlayer.visualX = LOV_X + loversPlayer.col * LOV_CELL;
+      loversPlayer.visualY = LOV_Y + loversPlayer.row * LOV_CELL;
+    }
+
+    function moveLoversPlayer(dc, dr) {
+      if (loversState !== "PLAYING") return;
+      const targetC = loversPlayer.col + dc;
+      const targetR = loversPlayer.row + dr;
+
+      // Grid boundaries
+      if (targetC < 0 || targetC >= LOV_COLS || targetR < 0 || targetR >= LOV_ROWS) return;
+
+      // Obstacle wall collision
+      for (const w of loversWalls) {
+        if (w.col === targetC && w.row === targetR) return;
+      }
+
+      loversPlayer.col = targetC;
+      loversPlayer.row = targetR;
+      loversSteps++;
+      playStepSound();
+
+      // Check collision with square snakes
+      for (const s of loversSnakes) {
+        for (const seg of s.segments) {
+          if (seg.col === loversPlayer.col && seg.row === loversPlayer.row) {
+            triggerLoversFail();
+            return;
+          }
+        }
+      }
+
+      // Check reunion with lover!
+      if (loversPlayer.col === loversPartner.col && loversPlayer.row === loversPartner.row) {
+        triggerLoversReunion();
+      }
+    }
+
+    function triggerLoversReunion() {
+      loversState = "REUNITED";
+      loversAnimTimer = 0;
+      triggerCameraJuice();
+      playReunionChime();
+      playVictoryFanfare();
+
+      const px = LOV_X + loversPartner.col * LOV_CELL + LOV_CELL / 2;
+      const py = LOV_Y + loversPartner.row * LOV_CELL + LOV_CELL / 2;
+      for (let i = 0; i < 35; i++) {
+        loversSparkles.push({
+          x: px, y: py,
+          vx: (Math.random() - 0.5) * 5,
+          vy: -1.2 - Math.random() * 4,
+          color: Math.random() > 0.35 ? "#ff4081" : "#ffffff",
+          alpha: 1.0,
+          size: 2 + Math.random() * 4
+        });
+      }
+    }
+
+    function triggerLoversFail() {
+      loversState = "GAMEOVER";
+      loversAnimTimer = 0;
+      triggerCameraJuice();
+      playCrashSound();
+      playGameOverSound();
+
+      const px = LOV_X + loversPlayer.col * LOV_CELL + LOV_CELL / 2;
+      const py = LOV_Y + loversPlayer.row * LOV_CELL + LOV_CELL / 2;
+      for (let i = 0; i < 25; i++) {
+        loversSparkles.push({
+          x: px, y: py,
+          vx: (Math.random() - 0.5) * 6,
+          vy: (Math.random() - 0.5) * 6,
+          color: "#ffffff",
+          alpha: 1.0,
+          size: 2 + Math.random() * 3
+        });
+      }
+    }
+
+    function nextLoversLevel() {
+      loversLevel++;
+      initLoversLevel(loversLevel);
+    }
+
+    function runLovers() {
+      loversAnimTimer++;
+      const spdMult = gameDifficulty === "easy" ? 1.4 : (gameDifficulty === "hard" ? 0.75 : 1.0);
+      const snakeInterval = Math.max(8, Math.round(16 * spdMult));
+
+      // 1. UPDATE SQUARE SNAKES
+      if (loversState === "PLAYING") {
+        loversSnakeTimer++;
+        if (loversSnakeTimer >= snakeInterval) {
+          loversSnakeTimer = 0;
+
+          loversSnakes.forEach(s => {
+            const head = s.segments[0];
+
+            if (s.type === "WAYPOINTS") {
+              const target = s.waypoints[s.wpIndex];
+              const dc = Math.sign(target.col - head.col);
+              const dr = Math.sign(target.row - head.row);
+              if (dc !== 0) { s.dc = dc; s.dr = 0; }
+              else if (dr !== 0) { s.dc = 0; s.dr = dr; }
+
+              let nextC = head.col + s.dc;
+              let nextR = head.row + s.dr;
+
+              if (nextC === target.col && nextR === target.row) {
+                s.wpIndex = (s.wpIndex + 1) % s.waypoints.length;
+              }
+              s.segments.unshift({ col: nextC, row: nextR });
+              s.segments.pop();
+            } else {
+              let nextC = head.col + s.dc;
+              let nextR = head.row + s.dr;
+
+              // Reverse patrol when hitting limits
+              if (s.type === "X") {
+                if (nextC < s.minC || nextC > s.maxC) {
+                  s.dc = -s.dc;
+                  nextC = head.col + s.dc;
+                }
+              } else if (s.type === "Y") {
+                if (nextR < s.minR || nextR > s.maxR) {
+                  s.dr = -s.dr;
+                  nextR = head.row + s.dr;
+                }
+              }
+              s.segments.unshift({ col: nextC, row: nextR });
+              s.segments.pop();
+            }
+
+            // Check if moving snake strikes the player
+            for (const seg of s.segments) {
+              if (seg.col === loversPlayer.col && seg.row === loversPlayer.row) {
+                triggerLoversFail();
+                break;
+              }
+            }
+          });
+        }
+      }
+
+      // Smooth visual interpolation for the player's movement
+      const targetVisualX = LOV_X + loversPlayer.col * LOV_CELL;
+      const targetVisualY = LOV_Y + loversPlayer.row * LOV_CELL;
+      loversPlayer.visualX += (targetVisualX - loversPlayer.visualX) * 0.4;
+      loversPlayer.visualY += (targetVisualY - loversPlayer.visualY) * 0.4;
+
+      // 2. DRAW PLAYING GRID FLOOR & ARENA
+      ctx.fillStyle = "#0a0a0a";
+      ctx.fillRect(LOV_X, LOV_Y, LOV_COLS * LOV_CELL, LOV_ROWS * LOV_CELL);
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(LOV_X, LOV_Y, LOV_COLS * LOV_CELL, LOV_ROWS * LOV_CELL);
+
+      // Subtle grid dots
+      ctx.fillStyle = "#222222";
+      for (let c = 0; c < LOV_COLS; c++) {
+        for (let r = 0; r < LOV_ROWS; r++) {
+          ctx.fillRect(LOV_X + c * LOV_CELL + 14, LOV_Y + r * LOV_CELL + 14, 2, 2);
+        }
+      }
+
+      // 3. DRAW BARRIER WALLS
+      loversWalls.forEach(w => {
+        const wx = LOV_X + w.col * LOV_CELL;
+        const wy = LOV_Y + w.row * LOV_CELL;
+        ctx.fillStyle = "#151515";
+        ctx.fillRect(wx + 2, wy + 2, LOV_CELL - 4, LOV_CELL - 4);
+        ctx.strokeStyle = "#666666";
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(wx + 2, wy + 2, LOV_CELL - 4, LOV_CELL - 4);
+        ctx.beginPath();
+        ctx.moveTo(wx + 4, wy + 4); ctx.lineTo(wx + LOV_CELL - 4, wy + LOV_CELL - 4);
+        ctx.stroke();
+      });
+
+      // 4. DRAW SQUARE SNAKES (Obstacles)
+      loversSnakes.forEach(s => {
+        s.segments.forEach((seg, idx) => {
+          const sx = LOV_X + seg.col * LOV_CELL;
+          const sy = LOV_Y + seg.row * LOV_CELL;
+          const sz = LOV_CELL - 6;
+
+          if (idx === 0) {
+            // Snake Head: Bold white square with directional eyes
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(sx + 3, sy + 3, sz, sz);
+            ctx.fillStyle = "#000000";
+            // Eyes
+            const eyeOffset = s.dc === 1 ? 5 : (s.dc === -1 ? -5 : 0);
+            const eyeOffsetY = s.dr === 1 ? 5 : (s.dr === -1 ? -5 : 0);
+            ctx.fillRect(sx + LOV_CELL/2 - 5 + eyeOffset, sy + LOV_CELL/2 - 4 + eyeOffsetY, 3, 3);
+            ctx.fillRect(sx + LOV_CELL/2 + 2 + eyeOffset, sy + LOV_CELL/2 - 4 + eyeOffsetY, 3, 3);
+          } else {
+            // Snake Body Segments: Sleek dark square with white border
+            ctx.fillStyle = "#121212";
+            ctx.fillRect(sx + 3, sy + 3, sz, sz);
+            ctx.strokeStyle = "#ffffff";
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(sx + 3, sy + 3, sz, sz);
+            // Inner diamond
+            ctx.fillStyle = "#444444";
+            ctx.beginPath();
+            ctx.moveTo(sx + LOV_CELL/2, sy + 7);
+            ctx.lineTo(sx + LOV_CELL - 7, sy + LOV_CELL/2);
+            ctx.lineTo(sx + LOV_CELL/2, sy + LOV_CELL - 7);
+            ctx.lineTo(sx + 7, sy + LOV_CELL/2);
+            ctx.closePath();
+            ctx.fill();
+          }
+        });
+      });
+
+      // 5. DRAW PARTNER SQUARE & PLAYER SQUARE (OR MERGED UNITED SQUARE)
+      const partX = LOV_X + loversPartner.col * LOV_CELL;
+      const partY = LOV_Y + loversPartner.row * LOV_CELL;
+      const playX = loversPlayer.visualX;
+      const playY = loversPlayer.visualY;
+
+      if (loversState === "REUNITED") {
+        // UNITED AS ONE SQUARE WITH THROBBING VIBRANT PINK HEART!
+        const pulse = 1.0 + Math.sin(loversAnimTimer * 0.22) * 0.28;
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(partX + 2, partY + 2, LOV_CELL - 4, LOV_CELL - 4);
+        ctx.strokeStyle = "#ff4081";
+        ctx.lineWidth = 2.5;
+        ctx.strokeRect(partX + 2, partY + 2, LOV_CELL - 4, LOV_CELL - 4);
+
+        // Whole, filled pink heart throbbing with love!
+        drawPixelHeart(ctx, partX + LOV_CELL / 2, partY + LOV_CELL / 2, 13 * pulse, "BOTH", "#ff2a70");
+
+        // Outer love beacon ring
+        ctx.strokeStyle = `rgba(255, 64, 129, ${0.4 + Math.sin(loversAnimTimer * 0.15) * 0.3})`;
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(partX - 4, partY - 4, LOV_CELL + 8, LOV_CELL + 8);
+      } else {
+        // PARTNER SQUARE: Static square with Right Half Heart
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(partX + 2, partY + 2, LOV_CELL - 4, LOV_CELL - 4);
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(partX + 2, partY + 2, LOV_CELL - 4, LOV_CELL - 4);
+
+        // Right half of heart
+        drawPixelHeart(ctx, partX + LOV_CELL / 2, partY + LOV_CELL / 2, 11, "RIGHT", "#ff80ab");
+
+        // Subtle waiting beacon glow around partner
+        const beacon = 0.35 + Math.sin(loversAnimTimer * 0.08) * 0.25;
+        ctx.strokeStyle = `rgba(255, 128, 171, ${beacon})`;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(partX - 2, partY - 2, LOV_CELL + 4, LOV_CELL + 4);
+
+        // PLAYER SQUARE: Movable square with Left Half Heart
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(playX + 2, playY + 2, LOV_CELL - 4, LOV_CELL - 4);
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(playX + 2, playY + 2, LOV_CELL - 4, LOV_CELL - 4);
+
+        // Left half of heart
+        drawPixelHeart(ctx, playX + LOV_CELL / 2, playY + LOV_CELL / 2, 11, "LEFT", "#ff80ab");
+
+        // FLOATING DOWN ARROW ABOVE PLAYER HEAD ("YOU")
+        const arrowBounce = Math.sin(loversAnimTimer * 0.15) * 2.5;
+        const arrowCenterX = playX + LOV_CELL / 2;
+        const arrowTipY = playY - 3 + arrowBounce;
+
+        ctx.fillStyle = "#ffffff";
+        ctx.strokeStyle = "#000000";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(arrowCenterX - 5, arrowTipY - 7);
+        ctx.lineTo(arrowCenterX + 5, arrowTipY - 7);
+        ctx.lineTo(arrowCenterX, arrowTipY);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "900 8px monospace";
+        ctx.textAlign = "center";
+        ctx.fillText("YOU", arrowCenterX, arrowTipY - 8);
+      }
+
+      // 6. DRAW SPARKLES
+      for (let i = loversSparkles.length - 1; i >= 0; i--) {
+        const sp = loversSparkles[i];
+        sp.x += sp.vx;
+        sp.y += sp.vy;
+        sp.alpha -= 0.025;
+        ctx.fillStyle = sp.color;
+        ctx.globalAlpha = Math.max(0, sp.alpha);
+        ctx.fillRect(sp.x, sp.y, sp.size, sp.size);
+        ctx.globalAlpha = 1.0;
+        if (sp.alpha <= 0) loversSparkles.splice(i, 1);
+      }
+
+      // 7. HUD AT TOP (Zero Overlap!)
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 12px monospace";
+      ctx.textAlign = "left";
+      ctx.fillText(`LOVERS MEET [LEVEL ${loversLevel}]  |  STEPS: ${loversSteps}`, 108, 21);
+
+      // Controls guide at bottom
+      ctx.font = "11px monospace";
+      ctx.fillStyle = "#888888";
+      ctx.textAlign = "center";
+      ctx.fillText("Move: [W/A/S/D or Arrow Keys]  •  Avoid Snakes & Unite the Half-Hearts!", WIDTH / 2, HEIGHT - 6);
+
+      // 8. VICTORY OVERLAY (Next Level)
+      if (loversState === "REUNITED") {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.82)";
+        ctx.fillRect(WIDTH / 2 - 160, HEIGHT / 2 - 45, 320, 90);
+        ctx.strokeStyle = "#ff4081";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(WIDTH / 2 - 160, HEIGHT / 2 - 45, 320, 90);
+
+        ctx.fillStyle = "#ff4081";
+        ctx.font = "900 18px monospace";
+        ctx.textAlign = "center";
+        ctx.fillText(`💖 LEVEL ${loversLevel} COMPLETE! 💖`, WIDTH / 2, HEIGHT / 2 - 16);
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 12px monospace";
+        ctx.fillText("THE TWO HALF-HEARTS ARE UNITED!", WIDTH / 2, HEIGHT / 2 + 8);
+
+        ctx.fillStyle = "#ff80ab";
+        ctx.font = "bold 11px monospace";
+        ctx.fillText("▶ PRESS ANY KEY OR CLICK FOR NEXT LEVEL ◀", WIDTH / 2, HEIGHT / 2 + 28);
+      }
+
+      // 9. GAME OVER OVERLAY (Retry)
+      if (loversState === "GAMEOVER") {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
+        ctx.fillRect(WIDTH / 2 - 150, HEIGHT / 2 - 40, 300, 80);
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(WIDTH / 2 - 150, HEIGHT / 2 - 40, 300, 80);
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "900 18px monospace";
+        ctx.textAlign = "center";
+        ctx.fillText("💔 SEPARATED! MISSION FAILED", WIDTH / 2, HEIGHT / 2 - 12);
+
+        ctx.fillStyle = "#aaaaaa";
+        ctx.font = "12px monospace";
+        ctx.fillText("▶ PRESS ANY KEY OR CLICK TO RETRY ◀", WIDTH / 2, HEIGHT / 2 + 16);
+      }
+    }
+
+
+    /* ----------------------------------------------------
+       GAME 2: KOGGY AIRCRAFT (Vertical Parallax Sky + Banking Rotation)
+       ---------------------------------------------------- */
+    let airState = "PLAYING";
+    let airScore = 0;
+    let airFrame = 0;
+    let airObstacles = [];
+    let airCraftX = WIDTH / 2;
+    let airCraftY = HEIGHT - 70;
+    let lastAirCraftX = WIDTH / 2;
+    let craftRoll = 0;
+    let craftTargetRoll = 0;
+    let airGiantDucks = [];
+    let airDuckWarning = 0;
+    let airDuckTimer = 0;
+    let airWalls = [];
+    let airWallTimer = 0;
+    let airWallWarning = 0;
+    let airDissolveParticles = [];
+    let airLasers = [];
+
+    // Parallax background layers
+    let airStars = [];
+    let airClouds = [];
+    let airSpeedLines = [];
+
+    function initAircraft() {
+      airState = "PLAYING";
+      airScore = 0;
+      airFrame = 0;
+      airObstacles = [];
+      airGiantDucks = [];
+      airDuckWarning = 0;
+      airDuckTimer = 0;
+      airWalls = [];
+      airWallTimer = 0;
+      airWallWarning = 0;
+      airDissolveParticles = [];
+      airLasers = [];
+      airCraftX = WIDTH / 2;
+      airCraftY = HEIGHT - 70;
+      lastAirCraftX = WIDTH / 2;
+      craftRoll = 0;
+      craftTargetRoll = 0;
+
+      // Layer 1: Distant Stars (Slow drift)
+      airStars = [];
+      for (let i = 0; i < 30; i++) {
+        airStars.push({
+          x: Math.random() * WIDTH,
+          y: Math.random() * HEIGHT,
+          size: Math.random() > 0.5 ? 2 : 1,
+          speed: 1.2 + Math.random() * 1.4,
+          alpha: 0.3 + Math.random() * 0.5
+        });
+      }
+
+      // Layer 2: Medium Altitude Geometric Clouds (Wireframes)
+      airClouds = [];
+      for (let i = 0; i < 6; i++) {
+        airClouds.push({
+          x: Math.random() * WIDTH,
+          y: Math.random() * HEIGHT,
+          w: 40 + Math.random() * 50,
+          h: 20 + Math.random() * 20,
+          speed: 3.5 + Math.random() * 1.5,
+          alpha: 0.15 + Math.random() * 0.15
+        });
+      }
+
+      // Layer 3: Supersonic Wind Streaks (Fast Rush)
+      airSpeedLines = [];
+      for (let i = 0; i < 12; i++) {
+        airSpeedLines.push({
+          x: Math.random() * WIDTH,
+          y: Math.random() * HEIGHT,
+          len: 30 + Math.random() * 40,
+          speed: 9 + Math.random() * 6
+        });
+      }
+    }
+
+    function updateAircraftMouse(x) {
+      if (airState === "PLAYING") {
+        airCraftX = Math.max(70, Math.min(WIDTH - 70, x));
+      }
+    }
+
+    function fireAircraftWeapons() {
+      if (airState !== "PLAYING") return;
+      playPointSound();
+      // 3-Way Arc Blaster Spread (@v11ddx & @dhd.exe formation salvo!)
+      // 1. Left Arc Laser
+      airLasers.push({
+        x: airCraftX - 22,
+        y: airCraftY - 18,
+        vx: -3.2,
+        vy: -9.5,
+        rot: -0.32
+      });
+      // 2. Center Heavy Bolt
+      airLasers.push({
+        x: airCraftX,
+        y: airCraftY - 26,
+        vx: 0,
+        vy: -10.5,
+        rot: 0
+      });
+      // 3. Right Arc Laser
+      airLasers.push({
+        x: airCraftX + 22,
+        y: airCraftY - 10,
+        vx: 3.2,
+        vy: -9.5,
+        rot: 0.32
+      });
+    }
+
+    function drawVerticalJet(x, y, name, rollAngle = 0) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rollAngle); // Clear banking tilt on left/right movement!
+
+      // 1. THICK, PROMINENT SPEED LINES & EXHAUST TRAILS
+      const flameLen = 20 + Math.random() * 24;
+      const wingTrailLen = 14 + Math.random() * 18;
+
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 3.5; // Bold & prominent!
+
+      // Center Twin Jet Exhaust Streaks
+      ctx.beginPath();
+      ctx.moveTo(-4, 15);
+      ctx.lineTo(-4, 15 + flameLen);
+      ctx.moveTo(4, 15);
+      ctx.lineTo(4, 15 + flameLen);
+      ctx.stroke();
+
+      // Wingtip Vapor Trails
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-12, 12);
+      ctx.lineTo(-12, 12 + wingTrailLen);
+      ctx.moveTo(12, 12);
+      ctx.lineTo(12, 12 + wingTrailLen);
+      ctx.stroke();
+
+      // Trailing Sonic Dash Particles
+      if (Math.random() > 0.25) {
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.75)";
+        const streakX = (Math.random() - 0.5) * 32;
+        const streakY = 24 + Math.random() * 22;
+        ctx.beginPath();
+        ctx.moveTo(streakX, streakY);
+        ctx.lineTo(streakX, streakY + 28);
+        ctx.stroke();
+      }
+
+      // 2. JET BODY
+      ctx.strokeStyle = "#ffffff";
+      ctx.fillStyle = "#000000";
+      ctx.lineWidth = 2.5;
+
+      ctx.beginPath();
+      ctx.moveTo(0, -18);      // Nose
+      ctx.lineTo(12, 10);      // Right wing
+      ctx.lineTo(4, 6);
+      ctx.lineTo(12, 16);      // Right tail
+      ctx.lineTo(0, 13);       // Engine
+      ctx.lineTo(-12, 16);     // Left tail
+      ctx.lineTo(-4, 6);
+      ctx.lineTo(-12, 10);     // Left wing
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Cockpit
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(-2, -6, 4, 8);
+
+      // 3. PILOT USERNAME (Positioned cleanly above nose)
+      if (name) {
+        ctx.font = "900 10px monospace";
+        ctx.fillStyle = "#000000";
+        const txtW = ctx.measureText(name).width;
+        ctx.fillRect(-txtW/2 - 4, -34, txtW + 8, 14);
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(-txtW/2 - 4, -34, txtW + 8, 14);
+
+        ctx.fillStyle = "#ffffff";
+        ctx.textAlign = "center";
+        ctx.fillText(name, 0, -23);
+      }
+
+      ctx.restore();
+    }
+
+    function runAircraft() {
+      airFrame++;
+      const spdMult = gameDifficulty === "easy" ? 0.75 : (gameDifficulty === "hard" ? 1.3 : 1.0);
+      const spawnRate = gameDifficulty === "easy" ? 56 : (gameDifficulty === "hard" ? 36 : 46);
+
+      // 1. DYNAMIC VERTICAL PARALLAX FLIGHT SKY
+      // Layer A: Distant Stars
+      ctx.fillStyle = "#ffffff";
+      airStars.forEach(s => {
+        s.y += s.speed;
+        if (s.y > HEIGHT) { s.y = 0; s.x = Math.random() * WIDTH; }
+        ctx.fillStyle = `rgba(255, 255, 255, ${s.alpha})`;
+        ctx.fillRect(s.x, s.y, s.size, s.size);
+      });
+
+      // Layer B: Medium Altitude Geometric Cloud Wireframes
+      ctx.lineWidth = 1;
+      airClouds.forEach(c => {
+        c.y += c.speed;
+        if (c.y > HEIGHT + 40) { c.y = -30; c.x = Math.random() * WIDTH; }
+        ctx.strokeStyle = `rgba(255, 255, 255, ${c.alpha})`;
+        ctx.strokeRect(c.x, c.y, c.w, c.h);
+      });
+
+      // Layer C: Supersonic Wind Streak Lines (high velocity rush)
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.22)";
+      ctx.lineWidth = 1;
+      airSpeedLines.forEach(wl => {
+        wl.y += wl.speed;
+        if (wl.y > HEIGHT + 50) { wl.y = -50; wl.x = Math.random() * WIDTH; }
+        ctx.beginPath();
+        ctx.moveTo(wl.x, wl.y);
+        ctx.lineTo(wl.x, wl.y + wl.len);
+        ctx.stroke();
+      });
+
+      if (airState === "PLAYING") {
+        airScore++;
+
+        // Continuous Aircraft Jet Thruster Loop
+        if (sfxEnabled) {
+          if (!engineRunning) startAircraftEngine();
+          updateAircraftEngine(craftRoll);
+        } else if (engineRunning) {
+          stopAircraftEngine();
+        }
+
+        // Keyboard movement
+        if (keys["ArrowLeft"] || keys["a"] || keys["A"]) airCraftX -= 6;
+        if (keys["ArrowRight"] || keys["d"] || keys["D"]) airCraftX += 6;
+        if (keys["ArrowUp"] || keys["w"] || keys["W"]) airCraftY -= 5;
+        if (keys["ArrowDown"] || keys["s"] || keys["S"]) airCraftY += 5;
+
+        airCraftX = Math.max(60, Math.min(WIDTH - 60, airCraftX));
+        airCraftY = Math.max(80, Math.min(HEIGHT - 50, airCraftY));
+
+        // Detect horizontal velocity (works with BOTH mouse and keyboard!)
+        const deltaX = airCraftX - lastAirCraftX;
+        lastAirCraftX = airCraftX;
+
+        // Dynamic banking rotation: tilt left on left move, tilt right on right move
+        if (deltaX < -0.8) craftTargetRoll = -0.32; // ~18 degrees tilt left
+        else if (deltaX > 0.8) craftTargetRoll = 0.32; // ~18 degrees tilt right
+        else craftTargetRoll = 0; // Level out when flying straight
+
+        // Smooth roll interpolation
+        craftRoll += (craftTargetRoll - craftRoll) * 0.22;
+
+        // RHYTHMIC 20-SECOND BOSS DUCK CYCLE
+        airDuckTimer++;
+
+        // IMPASSABLE BARRICADE CYCLE: EVERY ~12 SECONDS (720 frames, when duck is inactive)
+        if (airDuckWarning === 0 && airGiantDucks.length === 0) {
+          airWallTimer++;
+          if (airWallTimer >= 720) {
+            airWallTimer = 0;
+            airWallWarning = 75; // ~1.25s warning!
+            playBossWarningSound();
+          }
+        }
+
+        // Spawn Full Impassable Barricade Wall when warning reaches 1
+        if (airWallWarning === 1) {
+          for (let c = 0; c < 10; c++) {
+            airWalls.push({
+              x: c * 54,
+              y: -36,
+              w: 54,
+              h: 30,
+              hp: gameDifficulty === "hard" ? 3 : 2,
+              maxHp: gameDifficulty === "hard" ? 3 : 2,
+              speed: 2.2 * spdMult,
+              destroyed: false
+            });
+          }
+        }
+
+        // Only spawn regular blocks if NO duck and NO barricade is active!
+        if (airDuckWarning === 0 && airGiantDucks.length === 0 && airWallWarning === 0 && airWalls.length === 0) {
+          if (airFrame % spawnRate === 0) {
+            const gapX = 40 + Math.random() * (WIDTH - 160);
+            airObstacles.push({
+              x: gapX,
+              y: -30,
+              w: 36,
+              h: 36,
+              speed: (3.0 + Math.random() * 1.4) * spdMult,
+              rot: 0
+            });
+          }
+        }
+
+        // TRIGGER GIANT DUCK EVENT: EXACTLY EVERY 20 SECONDS (1200 frames)
+        if (airDuckTimer >= 1200) {
+          airDuckTimer = 0;
+          airDuckWarning = 150; // Long 2.5-second warning!
+          playBossWarningSound();
+
+          // DISSOLVE ALL OBSTACLES & WALLS: Clears whole arena so aircraft has total room!
+          airObstacles.forEach(o => {
+            for (let p = 0; p < 8; p++) {
+              airDissolveParticles.push({
+                x: o.x + Math.random() * o.w,
+                y: o.y + Math.random() * o.h,
+                vx: (Math.random() - 0.5) * 6,
+                vy: (Math.random() - 0.5) * 6,
+                size: 2 + Math.random() * 3,
+                alpha: 1.0
+              });
+            }
+          });
+          airObstacles = [];
+
+          airWalls.forEach(b => {
+            if (!b.destroyed) {
+              for (let p = 0; p < 6; p++) {
+                airDissolveParticles.push({
+                  x: b.x + Math.random() * b.w,
+                  y: b.y + Math.random() * b.h,
+                  vx: (Math.random() - 0.5) * 6,
+                  vy: (Math.random() - 0.5) * 6,
+                  size: 3,
+                  alpha: 1.0
+                });
+              }
+            }
+          });
+          airWalls = [];
+          playDissolveSound();
+        }
+
+        // Spawn Giant Duck: BIGGER & THROWN with "QUACK QUACK! I'M CROSSING!"
+        if (airDuckWarning === 35) {
+          playQuackSound();
+          setTimeout(() => { playQuackSound(); }, 160); // Quack quack!
+          setTimeout(() => { playQuackSound(); }, 360); // "I'm crossing!"
+          const startX = Math.random() > 0.5 ? 90 : WIDTH - 90;
+          const throwVx = ((airCraftX - startX) / 110);
+          airGiantDucks.push({
+            x: startX,
+            y: -110,
+            vx: throwVx,
+            scale: 4.5, // EVEN BIGGER DUCK!
+            speed: 2.1 * spdMult,
+            waddle: 0,
+            radius: 46, // Fair hitbox
+            hp: 8
+          });
+        }
+
+        // Update Aircraft Lasers / Projectiles
+        for (let i = airLasers.length - 1; i >= 0; i--) {
+          const l = airLasers[i];
+          l.x += (l.vx || 0);
+          l.y += l.vy;
+
+          // Hit Barricade Wall Blocks (BLAST THE WALL!)
+          let laserHit = false;
+          for (let j = 0; j < airWalls.length; j++) {
+            const b = airWalls[j];
+            if (!b.destroyed && l.x > b.x && l.x < b.x + b.w && l.y > b.y && l.y < b.y + b.h) {
+              b.hp--;
+              playHitSound();
+              laserHit = true;
+              for (let p = 0; p < 6; p++) {
+                airDissolveParticles.push({
+                  x: l.x, y: l.y,
+                  vx: (Math.random() - 0.5) * 5, vy: (Math.random() - 0.5) * 5,
+                  size: 2 + Math.random() * 3, alpha: 1.0
+                });
+              }
+              if (b.hp <= 0) {
+                b.destroyed = true;
+                playDissolveSound();
+                triggerCameraJuice();
+                airScore += 30; // Big bonus for blasting a hole!
+                for (let p = 0; p < 14; p++) {
+                  airDissolveParticles.push({
+                    x: b.x + Math.random() * b.w, y: b.y + Math.random() * b.h,
+                    vx: (Math.random() - 0.5) * 7, vy: (Math.random() - 0.5) * 7,
+                    size: 3 + Math.random() * 3, alpha: 1.0
+                  });
+                }
+              }
+              break;
+            }
+          }
+          if (laserHit) {
+            airLasers.splice(i, 1);
+            continue;
+          }
+
+          // Hit obstacles
+          for (let j = airObstacles.length - 1; j >= 0; j--) {
+            const o = airObstacles[j];
+            if (l.x > o.x && l.x < o.x + o.w && l.y > o.y && l.y < o.y + o.h) {
+              for (let p = 0; p < 6; p++) {
+                airDissolveParticles.push({
+                  x: l.x, y: l.y,
+                  vx: (Math.random() - 0.5) * 5, vy: (Math.random() - 0.5) * 5,
+                  size: 2 + Math.random() * 3, alpha: 1.0
+                });
+              }
+              airObstacles.splice(j, 1);
+              laserHit = true;
+              playDissolveSound();
+              airScore += 10;
+              break;
+            }
+          }
+          if (laserHit) {
+            airLasers.splice(i, 1);
+            continue;
+          }
+
+          // Hit Giant Duck
+          for (let j = airGiantDucks.length - 1; j >= 0; j--) {
+            const gd = airGiantDucks[j];
+            if (Math.hypot(l.x - gd.x, l.y - gd.y) < gd.radius + 6) {
+              gd.hp--;
+              playQuackSound();
+              triggerCameraJuice();
+              for (let p = 0; p < 6; p++) {
+                airDissolveParticles.push({
+                  x: l.x, y: l.y,
+                  vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6,
+                  size: 3, alpha: 1.0
+                });
+              }
+              airLasers.splice(i, 1);
+              if (gd.hp <= 0) {
+                playVictoryFanfare();
+                airScore += 100;
+                airGiantDucks.splice(j, 1);
+              }
+              break;
+            }
+          }
+
+          if (l.y < -20 || l.x < -20 || l.x > WIDTH + 20) airLasers.splice(i, 1);
+        }
+
+        const c1 = { x: airCraftX - 22, y: airCraftY, r: 12 };
+        const c2 = { x: airCraftX + 22, y: airCraftY + 12, r: 12 };
+
+        function checkCircBox(c, b) {
+          const nearX = Math.max(b.x, Math.min(c.x, b.x + b.w));
+          const nearY = Math.max(b.y, Math.min(c.y, b.y + b.h));
+          const dx = c.x - nearX;
+          const dy = c.y - nearY;
+          return (dx * dx + dy * dy) < (c.r * c.r);
+        }
+
+        // Update Barricade Wall Blocks (Collision with plane)
+        for (let i = airWalls.length - 1; i >= 0; i--) {
+          const b = airWalls[i];
+          b.y += b.speed;
+
+          if (!b.destroyed) {
+            if (checkCircBox(c1, b) || checkCircBox(c2, b)) {
+              airState = "GAMEOVER";
+              stopAircraftEngine();
+              triggerCameraJuice();
+              playCrashSound();
+              playGameOverSound();
+            }
+          }
+
+          if (b.y > HEIGHT + 40) airWalls.splice(i, 1);
+        }
+
+        // Update Standard Obstacles
+        for (let i = airObstacles.length - 1; i >= 0; i--) {
+          const o = airObstacles[i];
+          o.y += o.speed;
+          o.rot += 0.03;
+
+          if (checkCircBox(c1, o) || checkCircBox(c2, o)) {
+            airState = "GAMEOVER";
+            stopAircraftEngine();
+            triggerCameraJuice();
+            playCrashSound();
+            playGameOverSound();
+          }
+
+          if (o.y > HEIGHT + 40) airObstacles.splice(i, 1);
+        }
+
+        // Update Giant Ducks (Dynamically Swooping / Thrown trajectory!)
+        for (let i = airGiantDucks.length - 1; i >= 0; i--) {
+          const gd = airGiantDucks[i];
+          gd.x += gd.vx + Math.sin(gd.waddle) * 1.5; // Thrown swooping arc!
+          gd.y += gd.speed;
+          gd.waddle += 0.08;
+
+          const c1 = { x: airCraftX - 22, y: airCraftY, r: 12 };
+          const c2 = { x: airCraftX + 22, y: airCraftY + 12, r: 12 };
+
+          const dist1 = Math.hypot(c1.x - gd.x, c1.y - gd.y);
+          const dist2 = Math.hypot(c2.x - gd.x, c2.y - gd.y);
+
+          if (dist1 < gd.radius + c1.r || dist2 < gd.radius + c2.r) {
+            airState = "GAMEOVER";
+            stopAircraftEngine();
+            triggerCameraJuice();
+            playCrashSound();
+            playQuackSound();
+            playGameOverSound();
+          }
+
+          if (gd.y > HEIGHT + 100) airGiantDucks.splice(i, 1);
+        }
+      }
+
+      // Draw Standard Obstacles
+      ctx.lineWidth = 2;
+      airObstacles.forEach(o => {
+        ctx.save();
+        ctx.translate(o.x + o.w/2, o.y + o.h/2);
+        ctx.rotate(o.rot);
+        ctx.strokeStyle = "#ffffff";
+        ctx.strokeRect(-o.w/2, -o.h/2, o.w, o.h);
+        ctx.beginPath();
+        ctx.moveTo(-o.w/2, -o.h/2); ctx.lineTo(o.w/2, o.h/2);
+        ctx.stroke();
+        ctx.restore();
+      });
+
+      // Draw VERY BIG DUCKS!
+      airGiantDucks.forEach(gd => {
+        ctx.save();
+        ctx.translate(gd.x, gd.y);
+        ctx.rotate(Math.sin(gd.waddle) * 0.12);
+        drawDuck(ctx, 0, 0, gd.scale);
+
+        // Quack speech bubble ("QUACK QUACK! I'M CROSSING! 🦆")
+        const bubbleW = 205;
+        const bubbleH = 22;
+        const bubbleY = -82;
+        ctx.fillStyle = "#ffffff";
+        ctx.strokeStyle = "#000000";
+        ctx.lineWidth = 1.5;
+        ctx.fillRect(-bubbleW/2, bubbleY, bubbleW, bubbleH);
+        ctx.strokeRect(-bubbleW/2, bubbleY, bubbleW, bubbleH);
+
+        // Speech bubble triangle pointing down
+        ctx.beginPath();
+        ctx.moveTo(-6, bubbleY + bubbleH);
+        ctx.lineTo(0, bubbleY + bubbleH + 6);
+        ctx.lineTo(6, bubbleY + bubbleH);
+        ctx.fillStyle = "#ffffff";
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#000000";
+        ctx.font = "900 10px monospace";
+        ctx.textAlign = "center";
+        ctx.fillText("QUACK QUACK! I'M CROSSING! 🦆", 0, bubbleY + 15);
+        ctx.restore();
+      });
+
+      // Draw Dissolving Obstacle Sparkles
+      for (let i = airDissolveParticles.length - 1; i >= 0; i--) {
+        const dp = airDissolveParticles[i];
+        dp.x += dp.vx; dp.y += dp.vy; dp.alpha -= 0.035;
+        ctx.fillStyle = `rgba(255, 255, 255, ${dp.alpha})`;
+        ctx.fillRect(dp.x, dp.y, dp.size, dp.size);
+        if (dp.alpha <= 0) airDissolveParticles.splice(i, 1);
+      }
+
+      // Draw Barricade Wall Blocks (Reinforced Hazard Blocks!)
+      airWalls.forEach(b => {
+        if (b.destroyed) return;
+        ctx.save();
+        ctx.fillStyle = "#0c0c0c";
+        ctx.fillRect(b.x + 1, b.y, b.w - 2, b.h);
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(b.x + 1, b.y, b.w - 2, b.h);
+
+        // Industrial hazard stripes
+        ctx.beginPath();
+        ctx.moveTo(b.x + 8, b.y + b.h - 3); ctx.lineTo(b.x + b.w - 8, b.y + 3);
+        ctx.moveTo(b.x + 18, b.y + b.h - 3); ctx.lineTo(b.x + b.w, b.y + 11);
+        ctx.moveTo(b.x, b.y + b.h - 11); ctx.lineTo(b.x + b.w - 18, b.y + 3);
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Damage indicator: Bright jagged lightning crack when damaged!
+        if (b.hp === 1) {
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(b.x + b.w/2, b.y + 2);
+          ctx.lineTo(b.x + b.w/2 - 6, b.y + b.h/2);
+          ctx.lineTo(b.x + b.w/2 + 6, b.y + b.h/2 + 3);
+          ctx.lineTo(b.x + b.w/2 - 2, b.y + b.h - 2);
+          ctx.stroke();
+        }
+        ctx.restore();
+      });
+
+      // Barricade Warning Flasher
+      if (airWallWarning > 0) {
+        airWallWarning--;
+        if (Math.floor(airWallWarning / 5) % 2 === 0) {
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(WIDTH/2 - 150, 44, 300, 26);
+          ctx.fillStyle = "#000000";
+          ctx.font = "900 11px monospace";
+          ctx.textAlign = "center";
+          ctx.fillText("⚡ BARRICADE AHEAD! BLAST A HOLE! ⚡", WIDTH/2, 61);
+        }
+      }
+
+      // Giant Duck Warning Flasher (Longer & Prominent!)
+      if (airDuckWarning > 0) {
+        airDuckWarning--;
+        if (Math.floor(airDuckWarning / 5) % 2 === 0) {
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(WIDTH/2 - 140, 44, 280, 28);
+          ctx.fillStyle = "#000000";
+          ctx.font = "900 11px monospace";
+          ctx.textAlign = "center";
+          ctx.fillText("⚠ ALERT: GIANT DUCK APPROACHING! 🦆 ⚠", WIDTH/2, 62);
+        }
+      }
+
+      // Draw Aircraft Lasers / Projectiles (3-Way Arc Spread)
+      airLasers.forEach(l => {
+        ctx.save();
+        ctx.translate(l.x, l.y);
+        ctx.rotate(l.rot || 0);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.35)";
+        ctx.fillRect(-3, -8, 6, 16);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(-1.5, -8, 3, 16);
+        ctx.restore();
+      });
+
+      // Fly formation with dynamic banking rotation!
+      drawVerticalJet(airCraftX - 22, airCraftY, "@v11ddx", craftRoll);
+      drawVerticalJet(airCraftX + 22, airCraftY + 12, "@dhd.exe", craftRoll);
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 12px monospace";
+      ctx.textAlign = "left";
+      ctx.fillText(`KOGGY AIRCRAFT [${gameDifficulty.toUpperCase()}]  |  ALTITUDE: ${airScore}m`, 108, 21);
+
+      if (airState === "GAMEOVER") {
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "900 24px monospace";
+        ctx.textAlign = "center";
+        ctx.fillText("RADAR CRASH!", WIDTH/2, HEIGHT/2 - 20);
+        ctx.font = "bold 14px monospace";
+        ctx.fillText(`FLIGHT DISTANCE: ${airScore}m`, WIDTH/2, HEIGHT/2 + 10);
+        ctx.font = "12px monospace";
+        ctx.fillStyle = "#aaaaaa";
+        ctx.fillText("▶ PRESS ANY KEY OR CLICK TO RETRY ◀", WIDTH/2, HEIGHT/2 + 36);
+      }
+    }
+
+
+    /* ----------------------------------------------------
+       GAME 3: MONSTER BOSS FIGHT (Fair Attack, Padded Head HP, Falling Player, No Overlap)
+       ---------------------------------------------------- */
+    let monsterHP = 1000;
+    const MONSTER_MAX_HP = 1000;
+    let monsterX = WIDTH / 2;
+    let monsterY = 145; // Positioned with ample breathing room
+    let monsterHurtTimer = 0;
+    let monsterDefeatedTimer = 0;
+    let rematchReady = false;
+
+    // Player with Floating Padded Health Bar above head
+    let batter = {
+      x: WIDTH / 2,
+      baseY: HEIGHT - 45,
+      y: HEIGHT - 45,
+      vy: 0,
+      isGrounded: true,
+      dashCooldown: 0,
+      hp: 150,
+      maxHp: 150,
+      angle: 0, // Fall over on defeat!
+      isFallen: false
+    };
+
+    let monsterBaseballs = [];
+    let monsterFireballs = [];
+    let monsterDamageTexts = [];
+    let monsterSparkles = [];
+    let monsterAttackTimer = 0;
+    let monsterTelegraphTimer = 0;
+    let monsterState = "PLAYING"; // "PLAYING", "VICTORY", "GAMEOVER"
+
+    function initMonster() {
+      monsterHP = 1000;
+      monsterState = "PLAYING";
+      monsterX = WIDTH / 2;
+      monsterY = 145;
+      monsterHurtTimer = 0;
+      monsterDefeatedTimer = 0;
+      rematchReady = false;
+      monsterAttackTimer = 0;
+      monsterTelegraphTimer = 0;
+
+      batter.x = WIDTH / 2;
+      batter.y = HEIGHT - 45;
+      batter.vy = 0;
+      batter.isGrounded = true;
+      batter.dashCooldown = 0;
+      batter.angle = 0;
+      batter.isFallen = false;
+
+      // Generous, fair player health
+      batter.hp = gameDifficulty === "easy" ? 200 : (gameDifficulty === "hard" ? 120 : 160);
+      batter.maxHp = batter.hp;
+
+      monsterBaseballs = [];
+      monsterFireballs = [];
+      monsterDamageTexts = [];
+      monsterSparkles = [];
+    }
+
+    function monsterPlayerJump() {
+      if (batter.isGrounded && monsterState === "PLAYING") {
+        batter.vy = -12.5;
+        batter.isGrounded = false;
+        playJumpSound();
+      }
+    }
+
+    function monsterPlayerDash() {
+      if (batter.dashCooldown <= 0 && monsterState === "PLAYING") {
+        const dir = (keys["ArrowLeft"] || keys["a"] || keys["A"]) ? -60 : 60;
+        batter.x += dir;
+        batter.dashCooldown = 28;
+        triggerCameraJuice();
+        playDashSound();
+      }
+    }
+
+    function swingBaseballBat() {
+      if (monsterState !== "PLAYING") return;
+      monsterBaseballs.push({
+        x: batter.x + 12,
+        y: batter.y - 12,
+        targetX: monsterX + (Math.random() - 0.5) * 80,
+        targetY: monsterY + (Math.random() - 0.5) * 30,
+        progress: 0,
+        speed: 0.12
+      });
+    }
+
+    function runMonster() {
+      // Gentle, fair fireball attack speed (toned down from brutal!)
+      const fireballCooldown = gameDifficulty === "easy" ? 110 : (gameDifficulty === "hard" ? 65 : 85);
+      const fireballSpeed = gameDifficulty === "easy" ? 2.2 : (gameDifficulty === "hard" ? 3.4 : 2.8);
+
+      // Player Movement (A/D or Arrows)
+      if (monsterState === "PLAYING") {
+        if (keys["ArrowLeft"] || keys["a"] || keys["A"]) batter.x -= 5.5;
+        if (keys["ArrowRight"] || keys["d"] || keys["D"]) batter.x += 5.5;
+        batter.x = Math.max(30, Math.min(WIDTH - 30, batter.x));
+      }
+
+      // Jump Physics
+      if (!batter.isGrounded) {
+        batter.vy += 0.65;
+        batter.y += batter.vy;
+        if (batter.y >= batter.baseY) {
+          batter.y = batter.baseY;
+          batter.vy = 0;
+          batter.isGrounded = true;
+        }
+      }
+      if (batter.dashCooldown > 0) batter.dashCooldown--;
+
+      // Monster Attack AI (Telegraphed & Fair!)
+      if (monsterState === "PLAYING") {
+        monsterAttackTimer++;
+
+        // Telegraph warning 20 frames before firing
+        if (monsterAttackTimer % fireballCooldown > fireballCooldown - 22) {
+          monsterTelegraphTimer = 1;
+        } else {
+          monsterTelegraphTimer = 0;
+        }
+
+        // Shoot slower, avoidable fireball
+        if (monsterAttackTimer % fireballCooldown === 0) {
+          const angle = Math.atan2(batter.y - monsterY, batter.x - monsterX);
+          playFireballSound();
+          monsterFireballs.push({
+            x: monsterX,
+            y: monsterY + 28,
+            vx: Math.cos(angle) * fireballSpeed,
+            vy: Math.sin(angle) * fireballSpeed,
+            size: 9
+          });
+        }
+      }
+
+      // Update Fireballs
+      for (let i = monsterFireballs.length - 1; i >= 0; i--) {
+        const fb = monsterFireballs[i];
+        fb.x += fb.vx;
+        fb.y += fb.vy;
+
+        // Hit player check
+        if (monsterState === "PLAYING" && Math.abs(fb.x - batter.x) < 16 && Math.abs(fb.y - batter.y) < 22) {
+          batter.hp = Math.max(0, batter.hp - 20);
+          triggerCameraJuice();
+          playCrashSound();
+          monsterDamageTexts.push({ text: "-20 HP!", x: batter.x, y: batter.y - 28, alpha: 1.0 });
+          monsterFireballs.splice(i, 1);
+
+          // Player Defeated!
+          if (batter.hp <= 0) {
+            monsterState = "GAMEOVER";
+            triggerCameraJuice();
+            playCrashSound();
+            playGameOverSound();
+          }
+          continue;
+        }
+
+        if (fb.y > HEIGHT + 20 || fb.x < -20 || fb.x > WIDTH + 20) {
+          monsterFireballs.splice(i, 1);
+        }
+      }
+
+      // Update Player's Baseballs
+      for (let i = monsterBaseballs.length - 1; i >= 0; i--) {
+        const b = monsterBaseballs[i];
+        b.progress += b.speed;
+        b.x += (b.targetX - b.x) * b.progress;
+        b.y += (b.targetY - b.y) * b.progress;
+
+        if (b.progress >= 0.85) {
+          triggerCameraJuice();
+          playHitSound();
+          monsterHurtTimer = 10;
+          const isCrit = Math.random() > 0.65;
+          const dmg = isCrit ? 85 : 45;
+          monsterHP = Math.max(0, monsterHP - dmg);
+
+          monsterDamageTexts.push({
+            text: isCrit ? `-${dmg} CRIT!!` : `-${dmg}`,
+            x: b.targetX, y: b.targetY - 10, alpha: 1.0
+          });
+
+          for (let p = 0; p < 8; p++) {
+            monsterSparkles.push({
+              x: b.targetX, y: b.targetY,
+              vx: (Math.random() - 0.5) * 8, vy: (Math.random() - 0.5) * 8,
+              size: 3 + Math.random() * 3, alpha: 1.0
+            });
+          }
+
+          if (monsterHP <= 0 && monsterState === "PLAYING") {
+            monsterState = "VICTORY";
+            monsterDefeatedTimer = 0;
+            rematchReady = false;
+            playVictoryFanfare();
+          }
+          monsterBaseballs.splice(i, 1);
+        }
+      }
+
+      // Monster Defeat Collapse Animation
+      let curY = monsterY;
+      if (monsterState === "VICTORY") {
+        monsterDefeatedTimer++;
+        if (monsterDefeatedTimer > 15) {
+          monsterY += 2.8; // Falls downward to the ground!
+        }
+        if (monsterDefeatedTimer > 85) {
+          rematchReady = true;
+        }
+      } else {
+        curY += Math.sin(Date.now() * 0.005) * 3;
+      }
+
+      // Draw Monster
+      ctx.save();
+      ctx.translate(monsterX, curY);
+
+      const isFlashed = (monsterHurtTimer > 0);
+      if (monsterHurtTimer > 0) monsterHurtTimer--;
+
+      ctx.fillStyle = isFlashed ? "#ffffff" : "#000000";
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 3;
+
+      // Body
+      ctx.fillRect(-65, -45, 130, 90);
+      ctx.strokeRect(-65, -45, 130, 90);
+
+      // Horns (Telegraph flash when about to attack)
+      if (monsterTelegraphTimer > 0 && monsterState === "PLAYING") {
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(-60, -75, 20, 30);
+        ctx.fillRect(40, -75, 20, 30);
+      } else {
+        ctx.strokeRect(-60, -75, 20, 30);
+        ctx.strokeRect(40, -75, 20, 30);
+      }
+
+      if (monsterState === "VICTORY") {
+        // Defeated X_X Eyes
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(-45, -25); ctx.lineTo(-25, -5);
+        ctx.moveTo(-25, -25); ctx.lineTo(-45, -5);
+        ctx.moveTo(25, -25); ctx.lineTo(45, -5);
+        ctx.moveTo(45, -25); ctx.lineTo(25, -5);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(0, 22, 16, Math.PI, 0); // Frown / KO
+        ctx.stroke();
+      } else {
+        // Eyes
+        ctx.fillStyle = isFlashed ? "#000000" : "#ffffff";
+        ctx.fillRect(-42, -22, 22, 16);
+        ctx.fillRect(20, -22, 22, 16);
+        ctx.fillStyle = isFlashed ? "#ffffff" : "#000000";
+        ctx.fillRect(-35, -18, 9, 9);
+        ctx.fillRect(27, -18, 9, 9);
+
+        // Teeth
+        ctx.strokeStyle = isFlashed ? "#000000" : "#ffffff";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(-40, 14, 80, 20);
+        for (let t = -35; t <= 25; t += 14) {
+          ctx.beginPath();
+          ctx.moveTo(t, 14); ctx.lineTo(t + 7, 24); ctx.lineTo(t + 14, 14);
+          ctx.stroke();
+        }
+      }
+      ctx.restore();
+
+      // Draw Fireballs
+      monsterFireballs.forEach(fb => {
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(fb.x, fb.y, fb.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#000000";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      });
+
+      // Draw Baseballs
+      monsterBaseballs.forEach(b => {
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, 6, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Damage Numbers
+      for (let i = monsterDamageTexts.length - 1; i >= 0; i--) {
+        const d = monsterDamageTexts[i];
+        d.y -= 1.3;
+        d.alpha -= 0.025;
+        ctx.fillStyle = `rgba(255, 255, 255, ${d.alpha})`;
+        ctx.font = "900 15px monospace";
+        ctx.textAlign = "center";
+        ctx.fillText(d.text, d.x, d.y);
+        if (d.alpha <= 0) monsterDamageTexts.splice(i, 1);
+      }
+
+      // Sparkles
+      for (let i = monsterSparkles.length - 1; i >= 0; i--) {
+        const pt = monsterSparkles[i];
+        pt.x += pt.vx; pt.y += pt.vy; pt.alpha -= 0.04;
+        ctx.fillStyle = `rgba(255, 255, 255, ${pt.alpha})`;
+        ctx.fillRect(pt.x, pt.y, pt.size, pt.size);
+        if (pt.alpha <= 0) monsterSparkles.splice(i, 1);
+      }
+
+      // Draw Player Batter (Falls on ground if defeated!)
+      ctx.save();
+      ctx.translate(batter.x, batter.y + 15);
+
+      if (monsterState === "GAMEOVER") {
+        // Player falls flat on the ground!
+        batter.angle = Math.min(Math.PI / 2, batter.angle + 0.12);
+        ctx.rotate(batter.angle);
+      }
+
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(-10, -15, 20, 30); // Player Body
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.moveTo(8, -5); ctx.lineTo(30, -22); // Bat
+      ctx.stroke();
+      ctx.restore();
+
+      // FLOATING PADDED HEALTH BAR ABOVE PLAYER'S HEAD
+      if (monsterState === "PLAYING") {
+        const pBarW = 44;
+        const pBarH = 6;
+        const pBarX = batter.x - pBarW / 2;
+        const pBarY = batter.y - 16; // Padded comfortably above head!
+
+        // Black background backing
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(pBarX - 2, pBarY - 2, pBarW + 4, pBarH + 4);
+        // Border
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(pBarX, pBarY, pBarW, pBarH);
+        // Green/White Health Fill
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(pBarX + 1, pBarY + 1, (pBarW - 2) * (batter.hp / batter.maxHp), pBarH - 2);
+      }
+
+      // BOSS HP BAR AT TOP (Clean, Centered, Zero Overlap!)
+      const barW = 280;
+      const barX = (WIDTH - barW) / 2;
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(barX, 10, barW, 10);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(barX + 2, 12, (barW - 4) * (monsterHP / MONSTER_MAX_HP), 6);
+
+      ctx.font = "bold 11px monospace";
+      ctx.fillStyle = "#ffffff";
+      ctx.textAlign = "center";
+      ctx.fillText(`BOSS HP: ${monsterHP} / ${MONSTER_MAX_HP}`, WIDTH/2, 32);
+
+      // Controls note at bottom
+      ctx.font = "11px monospace";
+      ctx.fillStyle = "#888888";
+      ctx.textAlign = "center";
+      ctx.fillText("Move: [A/D or ← →]  •  Jump: [W / ↑ / SPACE]  •  Swing: [CLICK]", WIDTH/2, HEIGHT - 8);
+
+      // VICTORY SCREEN (Cleanly positioned with NO overlap)
+      if (monsterState === "VICTORY") {
+        ctx.fillStyle = "rgba(0,0,0,0.75)";
+        ctx.fillRect(WIDTH/2 - 140, 60, 280, 75);
+        ctx.strokeStyle = "#ffffff";
+        ctx.strokeRect(WIDTH/2 - 140, 60, 280, 75);
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "900 20px monospace";
+        ctx.textAlign = "center";
+        ctx.fillText("🏆 MONSTER DEFEATED!", WIDTH/2, 90);
+
+        if (rematchReady) {
+          ctx.font = "bold 12px monospace";
+          ctx.fillText("▶ PRESS ANY KEY TO REMATCH ◀", WIDTH/2, 118);
+        } else {
+          ctx.font = "11px monospace";
+          ctx.fillStyle = "#aaaaaa";
+          ctx.fillText("Boss collapsed... preparing rematch", WIDTH/2, 118);
+        }
+      }
+
+      // DEFEAT SCREEN (Cleanly positioned in CENTER with Black Backing, Zero Overlap!)
+      if (monsterState === "GAMEOVER") {
+        ctx.fillStyle = "rgba(0,0,0,0.85)";
+        ctx.fillRect(WIDTH/2 - 140, HEIGHT/2 - 45, 280, 85);
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(WIDTH/2 - 140, HEIGHT/2 - 45, 280, 85);
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "900 20px monospace";
+        ctx.textAlign = "center";
+        ctx.fillText("YOU WERE DEFEATED!", WIDTH/2, HEIGHT/2 - 15);
+
+        ctx.font = "bold 12px monospace";
+        ctx.fillStyle = "#dddddd";
+        ctx.fillText("▶ PRESS ANY KEY TO RETRY ◀", WIDTH/2, HEIGHT/2 + 18);
+      }
+    }
+
+
+    /* ----------------------------------------------------
+       4. 1x3 ARCADE SELECTION MENU (Interactive Pop-Up & Hover SFX)
+       ---------------------------------------------------- */
+    let hoveredCardIdx = -1;
+    let prevHoveredCardIdx = -1;
+    let hoveredDiffIdx = -1;
+    let prevHoveredDiffIdx = -1;
+
+    function drawMenu() {
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "900 18px monospace";
+      ctx.textAlign = "center";
+      ctx.fillText("KOGGY PRODUCTIONS ARCADE", WIDTH / 2, 28);
+
+      // Difficulty Selector Tabs
+      ctx.font = "bold 11px monospace";
+      ctx.fillStyle = "#888888";
+      ctx.fillText("DIFFICULTY:", 105, 68);
+
+      const diffTabs = [
+        { id: "easy", label: "EASY", x: 150, w: 70 },
+        { id: "medium", label: "MEDIUM", x: 235, w: 70 },
+        { id: "hard", label: "HARD", x: 320, w: 70 }
+      ];
+
+      let curDiffHover = -1;
+      diffTabs.forEach((t, idx) => {
+        const isHoverTab = (mousePos.x >= t.x && mousePos.x <= t.x + t.w && mousePos.y >= 52 && mousePos.y <= 74);
+        if (isHoverTab) curDiffHover = idx;
+
+        const isActive = (gameDifficulty === t.id);
+        if (isActive) {
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(t.x, 52, t.w, 22);
+          ctx.fillStyle = "#000000";
+        } else {
+          ctx.strokeStyle = isHoverTab ? "#ffffff" : "#555555";
+          ctx.lineWidth = isHoverTab ? 1.5 : 1;
+          ctx.strokeRect(t.x, 52, t.w, 22);
+          ctx.fillStyle = isHoverTab ? "#ffffff" : "#888888";
+        }
+        ctx.font = "bold 11px monospace";
+        ctx.textAlign = "center";
+        ctx.fillText(t.label, t.x + t.w/2, 67);
+      });
+
+      if (curDiffHover !== prevHoveredDiffIdx && curDiffHover !== -1) {
+        playHoverSound(680 + curDiffHover * 60);
+      }
+      prevHoveredDiffIdx = curDiffHover;
+
+      // 1x3 Side-by-Side Cards with Pop-Up on Hover
+      let curCardHover = -1;
+      if (mousePos.x >= 18 && mousePos.x <= 178 && mousePos.y >= 82 && mousePos.y <= 298) curCardHover = 0;
+      else if (mousePos.x >= 190 && mousePos.x <= 350 && mousePos.y >= 82 && mousePos.y <= 298) curCardHover = 1;
+      else if (mousePos.x >= 362 && mousePos.x <= 522 && mousePos.y >= 82 && mousePos.y <= 298) curCardHover = 2;
+
+      if (curCardHover !== prevHoveredCardIdx && curCardHover !== -1) {
+        playHoverSound(560 + curCardHover * 80);
+      }
+      prevHoveredCardIdx = curCardHover;
+
+      drawGameCard(18, 88, 160, 206, 1, "LOVERS MEET", "Unite half-hearts • Grid", renderLoversThumb, curCardHover === 0);
+      drawGameCard(190, 88, 160, 206, 2, "KOGGY AIRCRAFT", "Fly jets @v11ddx & @dhd.exe", renderAirThumb, curCardHover === 1);
+      drawGameCard(362, 88, 160, 206, 3, "MONSTER BOSS", "Hit boss with bat & jump/dash", renderMonsterThumb, curCardHover === 2);
+
+      // Bottom Note
+      ctx.font = "bold 11px monospace";
+      ctx.fillStyle = "#888888";
+      ctx.textAlign = "center";
+      ctx.fillText("[ Press ESC or click MENU anytime to return ]", WIDTH / 2, 335);
+    }
+
+    function drawGameCard(x, y, w, h, num, title, desc, thumbFunc, isHovered) {
+      // Pop Up upward by 7px when hovered
+      const drawY = isHovered ? y - 7 : y;
+
+      ctx.save();
+      if (isHovered) {
+        ctx.shadowColor = "rgba(255, 255, 255, 0.45)";
+        ctx.shadowBlur = 16;
+        ctx.shadowOffsetY = 6;
+      }
+
+      ctx.fillStyle = isHovered ? "#161616" : "#000000";
+      ctx.fillRect(x, drawY, w, h);
+      ctx.strokeStyle = isHovered ? "#ffffff" : "#444444";
+      ctx.lineWidth = isHovered ? 2.5 : 1.5;
+      ctx.strokeRect(x, drawY, w, h);
+      ctx.restore();
+
+      const tbX = x + 16;
+      const tbY = drawY + 14;
+      const tbW = w - 32;
+      const tbH = 88;
+      ctx.fillStyle = "#080808";
+      ctx.fillRect(tbX, tbY, tbW, tbH);
+      ctx.strokeStyle = isHovered ? "#ffffff" : "#2a2a2a";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(tbX, tbY, tbW, tbH);
+
+      ctx.save();
+      if (isHovered) {
+        ctx.translate(tbX + tbW/2, tbY + tbH/2);
+        ctx.scale(1.05, 1.05);
+        ctx.translate(-(tbX + tbW/2), -(tbY + tbH/2));
+      }
+      thumbFunc(tbX + tbW/2, tbY + tbH/2);
+      ctx.restore();
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = isHovered ? "900 12.5px monospace" : "900 12px monospace";
+      ctx.textAlign = "center";
+      ctx.fillText(`${num}. ${title}`, x + w/2, drawY + 124);
+
+      ctx.fillStyle = isHovered ? "#dddddd" : "#888888";
+      ctx.font = "10px monospace";
+      ctx.fillText(desc, x + w/2, drawY + 146);
+
+      if (isHovered) {
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(x + 18, drawY + 166, w - 36, 26);
+        ctx.fillStyle = "#000000";
+        ctx.font = "900 11.5px monospace";
+        ctx.fillText("▶ PLAY", x + w/2, drawY + 183);
+      } else {
+        ctx.strokeStyle = "#555555";
+        ctx.strokeRect(x + 20, drawY + 168, w - 40, 24);
+        ctx.fillStyle = "#888888";
+        ctx.font = "bold 11px monospace";
+        ctx.fillText("SELECT", x + w/2, drawY + 184);
+      }
+    }
+
+    function renderLoversThumb(cx, cy) {
+      // Left Square (Player) with left half heart
+      ctx.fillStyle = "#000000";
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 1.5;
+      ctx.fillRect(cx - 36, cy - 14, 24, 24);
+      ctx.strokeRect(cx - 36, cy - 14, 24, 24);
+      drawPixelHeart(ctx, cx - 24, cy - 2, 9, "LEFT", "#ff80ab");
+
+      // Right Square (Partner) with right half heart
+      ctx.fillRect(cx + 12, cy - 14, 24, 24);
+      ctx.strokeRect(cx + 12, cy - 14, 24, 24);
+      drawPixelHeart(ctx, cx + 24, cy - 2, 9, "RIGHT", "#ff80ab");
+
+      // Trailing Love Dots between them
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(cx - 6, cy - 3, 3, 3);
+      ctx.fillRect(cx - 1, cy - 3, 3, 3);
+      ctx.fillRect(cx + 4, cy - 3, 3, 3);
+
+      // Cute Little Throbbing Heart in center above
+      const pulse = 1.0 + Math.sin(Date.now() * 0.006) * 0.22;
+      drawPixelHeart(ctx, cx, cy - 26, 8 * pulse, "BOTH", "#ff4081");
+
+      // Mini Square Snake Obstacle patrolling below!
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(cx - 16, cy + 18, 8, 8); // Snake head
+      ctx.fillStyle = "#000000";
+      ctx.fillRect(cx - 14, cy + 20, 2, 2);
+      ctx.fillRect(cx - 10, cy + 20, 2, 2);
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(cx - 6, cy + 18, 8, 8); // Body 1
+      ctx.strokeRect(cx + 4, cy + 18, 8, 8); // Body 2
+      ctx.strokeRect(cx + 14, cy + 18, 8, 8); // Body 3
+    }
+
+    function renderAirThumb(cx, cy) {
+      drawVerticalJet(cx - 14, cy + 8, "");
+      drawVerticalJet(cx + 14, cy - 8, "");
+    }
+
+    function renderMonsterThumb(cx, cy) {
+      ctx.fillStyle = "#000000";
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 2;
+      ctx.fillRect(cx - 20, cy - 24, 40, 30);
+      ctx.strokeRect(cx - 20, cy - 24, 40, 30);
+      ctx.strokeRect(-18 + cx, cy - 32, 6, 8);
+      ctx.strokeRect(12 + cx, cy - 32, 6, 8);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(cx - 14, cy - 16, 8, 6);
+      ctx.fillRect(cx + 6, cy - 16, 8, 6);
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(cx - 15, cy + 24); ctx.lineTo(cx + 10, cy + 12);
+      ctx.stroke();
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(cx + 20, cy + 8, 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+
+    /* ----------------------------------------------------
+       5. MAIN ARCADE LOOP
+       ---------------------------------------------------- */
+    function arcadeLoop() {
+      ctx.fillStyle = "#000000";
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+      ctx.strokeStyle = "#141414";
+      ctx.lineWidth = 1;
+      for (let x = 0; x < WIDTH; x += 30) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, HEIGHT); ctx.stroke();
+      }
+      for (let y = 0; y < HEIGHT; y += 30) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(WIDTH, y); ctx.stroke();
+      }
+
+      if (activeGame === "MENU") {
+        if (engineRunning) stopAircraftEngine();
+        drawMenu();
+      } else {
+        if (activeGame !== "AIRCRAFT" && engineRunning) stopAircraftEngine();
+        if (activeGame === "LOVERS") runLovers();
+        if (activeGame === "AIRCRAFT") runAircraft();
+        if (activeGame === "MONSTER") runMonster();
+
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(WIDTH - 72, 6, 64, 22);
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 11px monospace";
+        ctx.textAlign = "center";
+        ctx.fillText("◀ MENU", WIDTH - 40, 21);
+      }
+
+      // Sound Toggle Button (top-left in menu and in games)
+      ctx.strokeStyle = sfxEnabled ? "#ffffff" : "#555555";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(10, 6, 85, 22);
+      ctx.fillStyle = sfxEnabled ? "#ffffff" : "#777777";
+      ctx.font = "bold 10px monospace";
+      ctx.textAlign = "center";
+      ctx.fillText(sfxEnabled ? "🔊 SFX: ON" : "🔇 SFX: OFF", 52, 20);
+
+      requestAnimationFrame(arcadeLoop);
+    }
+    arcadeLoop();
+  </script>
+
+</body>
+</html>
